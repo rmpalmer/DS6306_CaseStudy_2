@@ -1,0 +1,48 @@
+---
+title: "EDA"
+author: "R.M. Palmer"
+date: "11/15/2019"
+output: html_document
+---
+
+```{r eda, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r child = 'dataload.Rmd'}
+```
+
+```{r sanity_check}
+# check for NA values
+train_raw %>% 
+  select_if(function(x) any(is.na(x))) %>% 
+  summarise_each(funs(sum(is.na(.)))) -> raw_NA
+```
+
+```{r plot_wage_rates}
+# want to plot against MonthlyIncome
+# - DailyRate
+# - HourlyRate
+# - MonthlyRate
+#
+train_raw %>% ggplot() +
+  geom_line(aes(x=MonthlyIncome,y=DailyRate,color="red")) 
+train_raw %>% ggplot() +
+  geom_line(aes(x=MonthlyIncome,y=HourlyRate,color="blue")) 
+train_raw %>% ggplot() +
+  geom_line(aes(x=MonthlyIncome,y=MonthlyRate,color="green"))
+```
+
+```{r}
+# histogram of Monthly Income, broken down by each of the 8 categorical varibles
+# BusinessTravel
+# Department
+# EducationField
+# Gender
+# JobRole
+# MaritalStatus
+# Over18
+# OverTime
+train_raw %>% ggplot(mapping=aes(x=MonthlyIncome)) +
+  geom_histogram() + facet_wrap(EducationField)
+```

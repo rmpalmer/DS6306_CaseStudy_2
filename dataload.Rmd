@@ -5,20 +5,16 @@ date: "11/15/2019"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+```{r dataload, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 ```
 
 
-```{r}
+```{r import_csv}
 # import raw data
 train_raw <- read.csv('CaseStudy2-data.csv')
 
-# check for NA values
-train_raw %>% 
-  select_if(function(x) any(is.na(x))) %>% 
-  summarise_each(funs(sum(is.na(.)))) -> raw_NA
 
 # Decide about HourlyRate, DailyRate, MonthlyIncome, MonthlyRate
 
