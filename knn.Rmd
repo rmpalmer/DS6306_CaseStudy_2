@@ -1,0 +1,99 @@
+---
+title: "K Nearest Neighbors"
+author: "R.M. Palmer"
+date: "11/18/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r child = 'dataload.Rmd'}
+```
+
+```{r}
+library(caret)
+library(class)
+```
+
+```{r prep_for_knn}
+normalized <- employee_data %>% 
+  mutate(age_z = scale(Age),
+         dfh_z = scale(DistanceFromHome),
+         education_z = scale(Education),
+         env_sat_z = scale(EnvironmentSatisfaction),
+         job_i_z = scale(JobInvolvement),
+         job_l_z = scale(JobLevel),
+         job_s_z = scale(JobSatisfaction),
+         income_z = scale(MonthlyIncome),
+         num_c_z = scale(NumCompaniesWorked),
+         raise_z = scale(PercentSalaryHike),
+         perfr_z = scale(PerformanceRating),
+         rel_sat_z = scale(RelationshipSatisfaction),
+         opt_z = scale(StockOptionLevel),
+         years_z = scale(TotalWorkingYears),
+         train_z = scale(TrainingTimesLastYear),
+         wlb_z = scale(WorkLifeBalance),
+         yac_z = scale(YearsAtCompany),
+         yic_z = scale(YearsInCurrentRole),
+         ysp_z = scale(YearsSinceLastPromotion),
+         ywm_z = scale(YearsWithCurrManager)
+         ) %>% 
+  select(Attrition,
+         age_z,
+         dfh_z,
+         education_z,
+         env_sat_z,
+         job_i_z,
+         job_l_z,
+         job_s_z,
+         income_z,
+         num_c_z,
+         raise_z,
+         perfr_z,
+         rel_sat_z,
+         opt_z,
+         years_z,
+         train_z,
+         wlb_z,
+         yac_z,
+         yic_z,
+         ysp_z,
+         ysm_z)
+```
+
+```{r knn_parms}
+set.seed(42)
+train_frac <- 0.7
+numks <- 20
+knn_trials <- 10
+```
+
+```{r do_knn}
+knn_stats = matrix(nrow=numks,ncol=4)
+for (i in 1:numks)
+{
+  acc  = matrix(nrow=knn_trials,ncol=1)
+  sens = matrix(nrow=knn_trials,ncol=1)
+  spec = matrix(nrow=knn_trials,ncol=1)
+  for (j in 1:knn_trials)
+  {
+    trainIndices = sample(1:dim(normalized)[1],round(splitPerc * dim(normalized)[1]))
+    train = normalized[trainIndices,]
+    test = normalized[-trainIndices,]
+    classifications = knn(train[,cols_for_knn],
+                              test[,cols_for_knn],
+                              as.factor(train$category), prob = TRUE, k = i)
+    CM = confusionMatrix(table(as.factor(test$category),classifications),positive=positive_value)
+    acc[j]  = CM$overall[1]
+    sens[j] = CM$byClass[1]
+    spec[j] = CM$byClass[2]
+  }
+  knn_stats[i,1] = i
+  knn_stats[i,2] = colMeans(acc)
+  knn_stats[i,3] = colMeans(sens)
+  knn_stats[i,4] = colMeans(spec)
+}
+
+```
