@@ -15,7 +15,14 @@ library(tidyverse)
 # import raw data
 train_raw <- read.csv('CaseStudy2-data.csv') 
 
-employee_data <- train_raw %>% select(-Over18,-EmployeeNumber,-EmployeeCount)
+# drop unused columns
+employee_data <- train_raw %>% select(-Over18,
+                                      -EmployeeNumber,
+                                      -EmployeeCount,
+                                      -DailyRate,
+                                      -MonthlyRate,
+                                      -HourlyRate,
+                                      -StandardHours)
 
 # Over18 is a constant Y, so drop it
 

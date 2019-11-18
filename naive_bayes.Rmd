@@ -15,10 +15,9 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(e1071)
 library(caret)
-library(class)
 ```
 
-```{r}
+```{r nb_parameters}
 # parameters
 nb_predictors <- c("Age",
                    "Education",
@@ -47,7 +46,7 @@ positive_value <- 'Yes'
 set.seed(42)
 ```
 
-```{r}
+```{r do_nb}
 # do the work
 acc_nb <- matrix(nrow=nb_trials, ncol = 3)
 nobs <- length(employee_data$Attrition)

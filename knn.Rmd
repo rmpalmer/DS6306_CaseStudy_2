@@ -60,14 +60,36 @@ normalized <- employee_data %>%
          yac_z,
          yic_z,
          ysp_z,
-         ysm_z)
+         ywm_z)
+cols_for_knn <- c(
+         "age_z",
+         "dfh_z",
+         "education_z",
+         "env_sat_z",
+         "job_i_z",
+         "job_l_z",
+         "job_s_z",
+         "income_z",
+         "num_c_z",
+         "raise_z",
+         "perfr_z",
+         "rel_sat_z",
+         "opt_z",
+         "years_z",
+         "train_z",
+         "wlb_z",
+         "yac_z",
+         "yic_z",
+         "ysp_z",
+         "ywm_z")
 ```
 
 ```{r knn_parms}
 set.seed(42)
 train_frac <- 0.7
-numks <- 20
-knn_trials <- 10
+numks <- 25
+knn_trials <- 50
+positive_value <- 'Yes'
 ```
 
 ```{r do_knn}
@@ -79,13 +101,13 @@ for (i in 1:numks)
   spec = matrix(nrow=knn_trials,ncol=1)
   for (j in 1:knn_trials)
   {
-    trainIndices = sample(1:dim(normalized)[1],round(splitPerc * dim(normalized)[1]))
-    train = normalized[trainIndices,]
-    test = normalized[-trainIndices,]
-    classifications = knn(train[,cols_for_knn],
-                              test[,cols_for_knn],
-                              as.factor(train$category), prob = TRUE, k = i)
-    CM = confusionMatrix(table(as.factor(test$category),classifications),positive=positive_value)
+    trainIndices = sample(1:dim(normalized)[1],round(train_frac * dim(normalized)[1]))
+    trainData = normalized[trainIndices,]
+    testData = normalized[-trainIndices,]
+    classifications = knn(trainData[,cols_for_knn],
+                              testData[,cols_for_knn],
+                              trainData$Attrition, prob = TRUE, k = i)
+    CM = confusionMatrix(table(testData$Attrition,classifications),positive=positive_value)
     acc[j]  = CM$overall[1]
     sens[j] = CM$byClass[1]
     spec[j] = CM$byClass[2]
@@ -97,3 +119,59 @@ for (i in 1:numks)
 }
 
 ```
+
+```{r plot_k_stats}
+stats_frame <- data.frame(knn_stats)
+colnames(stats_frame) <- c("k","accuracy","sensitivity","specificity")
+for_plot <- reshape2::melt(stats_frame,id.var='k')
+for_plot %>% ggplot(aes(x=k,y=value,col=variable)) + 
+  geom_line() +
+  xlab('k') +
+  ylab('percent') +
+  ggtitle('Performance of Classifier by K')
+```
+
+```{r choose_k}
+combined_stats <- stats_frame %>% 
+  mutate(sums = accuracy + sensitivity + specificity) 
+best_k_acc  <- which.max(combined_stats$accuracy)
+best_k_sens <- which.max(combined_stats$sensitivity)
+best_k_spec <- which.max(combined_stats$specificity)
+best_k_combined <- which.max(combined_stats$sums)
+chosen_k = best_k_combined
+best_acc <-  round(100*combined_stats$accuracy[chosen_k])
+best_sens <- round(100*combined_stats$sensitivity[chosen_k])
+best_spec <- round(100*combined_stats$specificity[chosen_k])
+```
+
+k of `r best_k_acc`  is best for accuracy.
+
+k of `r best_k_sens` is best for sensitivity.
+
+k of `r best_k_spec` is best for specificity.
+
+we choose `r chosen_k` as best overall, since it gives the
+highest sum of accuracy, sensitivity, and specificity.
+
+```{r knn_pred}
+knn_pred <- knn(normalized[,cols_for_knn],
+                normalized[,cols_for_knn],
+                normalized$Attrition,k=chosen_k)
+CM_knn = confusionMatrix(table(as.factor(normalized$Attrition),knn_pred),positive=positive_value)
+knn_acc <- CM_knn$overall[1] # accuracy
+knn_sens <- CM_knn$byClass[1] # sensitivity
+knn_spec <- CM_knn$byClass[2] # specificity
+```
+
+KNN accuracy turns out to be `r format(100*knn_acc,digits=2)` %.
+
+KNN sensitivity is `r format(100*knn_sens,digits=2)` %.
+
+KNN specificity is `r format(100*knn_spec,digits=2)` %.
+
+```
+
+
+
+
+

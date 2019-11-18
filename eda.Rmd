@@ -7,6 +7,11 @@ output: html_document
 
 ```{r eda, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+library(gridExtra)
+library(grid)
+library(ggplot2)
+library(lattice)
+
 ```
 
 ```{r child = 'dataload.Rmd'}
@@ -64,3 +69,63 @@ train_raw %>% ggplot(mapping=aes(x=MonthlyIncome)) +
   geom_histogram() + facet_wrap(~OverTime)
 
 ```
+
+## good idea to test statistical significance of the categorical variables
+
+```{r}
+## should any of the variables be transformed (logs?)
+train_raw %>% ggplot(aes(sample=Age)) + stat_qq() + ggtitle('Age')
+train_raw %>% ggplot(aes(sample=DistanceFromHome)) + stat_qq() + ggtitle('Distance From Home')
+train_raw %>% ggplot(aes(sample=MonthlyIncome)) + stat_qq() + ggtitle('MonthlyIncome')
+
+train_raw %>% ggplot(aes(x=Age)) + geom_histogram() + ggtitle('Age')
+train_raw %>% ggplot(aes(x=DistanceFromHome)) + geom_histogram() + ggtitle('DistanceFromHome')
+train_raw %>% ggplot(aes(x=MonthlyIncome)) + geom_histogram() + ggtitle('MonthlyIncome')
+
+```
+
+```{r}
+train_raw %>% mutate(logincome = log(MonthlyIncome)) %>% ggplot(aes(x=logincome)) + geom_histogram() + ggtitle('log income')
+train_raw %>% mutate(sqrtdist = sqrt(DistanceFromHome)) %>% ggplot(aes(x=sqrtdist)) + geom_histogram() + ggtitle('sqrt distance')
+```
+
+```{r make_histograms}
+myfun <- function(varname)
+{
+  index <- which(colnames(train_raw)==varname)
+  one_col <- train_raw %>% select(index)
+  colnames(one_col)  <- c('x')
+  p1 <- one_col %>% ggplot(aes(x=x)) + geom_histogram() + ggtitle(varname)
+  p2 <- one_col %>% ggplot(aes(sample=x)) + stat_qq() + ggtitle(varname)
+  grid.arrange(p1,p2,nrow=1)
+}
+
+myfun('Age')
+myfun('DistanceFromHome')
+myfun('MonthlyIncome')
+myfun('YearsAtCompany')
+myfun('YearsSinceLastPromotion')
+myfun('YearsWithCurrManager')
+myfun('WorkLifeBalance')
+myfun('TotalWorkingYears')
+myfun('PerformanceRating')
+myfun('PercentSalaryHike')
+myfun('JobLevel')
+myfun('StockOptionLevel')
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
