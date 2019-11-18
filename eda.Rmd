@@ -41,8 +41,26 @@ train_raw %>% ggplot() +
 # Gender
 # JobRole
 # MaritalStatus
-# Over18
 # OverTime
 train_raw %>% ggplot(mapping=aes(x=MonthlyIncome)) +
-  geom_histogram() + facet_wrap(EducationField)
+  geom_histogram() + facet_wrap(~BusinessTravel)
+
+train_raw %>% ggplot(mapping=aes(x=MonthlyIncome)) +
+  geom_histogram() + facet_wrap(~Department)
+
+train_raw %>% ggplot(mapping=aes(x=MonthlyIncome)) +
+  geom_histogram() + facet_wrap(~EducationField)
+
+train_raw %>% ggplot(mapping=aes(x=MonthlyIncome)) +
+  geom_histogram() + facet_wrap(~Gender)
+
+train_raw %>% ggplot(mapping=aes(x=MonthlyIncome)) +
+  geom_histogram() + facet_wrap(~JobRole)
+
+train_raw %>% ggplot(mapping=aes(x=MonthlyIncome)) +
+  geom_histogram() + facet_wrap(~MaritalStatus)
+
+train_raw %>% ggplot(mapping=aes(x=MonthlyIncome)) +
+  geom_histogram() + facet_wrap(~OverTime)
+
 ```

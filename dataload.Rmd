@@ -13,8 +13,11 @@ library(tidyverse)
 
 ```{r import_csv}
 # import raw data
-train_raw <- read.csv('CaseStudy2-data.csv')
+train_raw <- read.csv('CaseStudy2-data.csv') 
 
+employee_data <- train_raw %>% select(-Over18,-EmployeeNumber,-EmployeeCount)
+
+# Over18 is a constant Y, so drop it
 
 # Decide about HourlyRate, DailyRate, MonthlyIncome, MonthlyRate
 
@@ -32,7 +35,7 @@ train_raw <- read.csv('CaseStudy2-data.csv')
 # Gender
 # JobRole
 # MaritalStatus
-# Over18
+## Over18
 # OverTime
 
 

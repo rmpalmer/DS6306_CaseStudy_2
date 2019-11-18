@@ -1,0 +1,83 @@
+---
+title: "Naive Bayes"
+author: "R.M. Palmer"
+date: "11/18/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r child = 'dataload.Rmd'}
+```
+
+```{r}
+library(e1071)
+library(caret)
+library(class)
+```
+
+```{r}
+# parameters
+nb_predictors <- c("Age",
+                   "Education",
+                   "BusinessTravel",
+                   "Department",
+                   "DistanceFromHome",
+                   "EnvironmentSatisfaction",
+                   "Gender",
+                   "MonthlyIncome",
+                   "NumCompaniesWorked",
+                   "MaritalStatus",
+                   "OverTime",
+                   "PercentSalaryHike",
+                   "PerformanceRating",
+                   "TotalWorkingYears",
+                   "TrainingTimesLastYear",
+                   "WorkLifeBalance",
+                   "YearsAtCompany",
+                   "YearsSinceLastPromotion"
+                   )
+nb_laplace <- 1
+nb_trials <- 100
+train_frac <- 0.7
+positive_value <- 'Yes'
+# for repeatability
+set.seed(42)
+```
+
+```{r}
+# do the work
+acc_nb <- matrix(nrow=nb_trials, ncol = 3)
+nobs <- length(employee_data$Attrition)
+for (j in 1:nb_trials)
+{
+  trainIndices <- sample(seq(1:nobs),round(train_frac*nobs))
+  trainData <- employee_data[trainIndices,]
+  testData <- employee_data[-trainIndices,]
+  model_nb <- naiveBayes(trainData[,nb_predictors],trainData$Attrition)
+  foo <- predict(model_nb,testData[,nb_predictors])
+  CM_nb <- confusionMatrix(table(predict(model_nb,testData[,nb_predictors]),
+                                 testData$Attrition),positive=positive_value)
+  acc_nb[j,1] <- CM_nb$overall[1] # accuracy
+  acc_nb[j,2] <- CM_nb$byClass[1] # sensitivity
+  acc_nb[j,3] <- CM_nb$byClass[2] # specificity
+
+}
+mean_stats <- colMeans(acc_nb)
+nb_acc <- mean_stats[1]
+nb_sens <- mean_stats[2]
+nb_spec <- mean_stats[3]
+```
+
+Averaging over `r nb_trials` trials, the Naive Bayes classifier has
+
+accuracy of `r format(100*nb_acc,digits=2)` %
+
+sensitivity of `r format(100*nb_sens,digits=2)` %
+
+specificity of `r format(100*nb_spec,digits=2)` %
+
+
+
