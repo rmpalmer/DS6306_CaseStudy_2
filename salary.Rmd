@@ -1,0 +1,26 @@
+---
+title: "Salary Prediction"
+author: "R.M. Palmer"
+date: "11/18/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(caret)
+```
+
+```{r child = 'dataload.Rmd'}
+```
+
+```{r linear_model}
+train_control <- trainControl(method="LOOCV")
+salary_loocv <- train(MonthlyIncome ~ YearsAtCompany
+                        +JobRole
+                        +JobLevel
+                        +Department
+                        +EducationField,
+                      data=employee_data,
+                      method="lm",trControl = train_control)
+print(salary_loocv)
+```

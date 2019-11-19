@@ -90,11 +90,19 @@ train_raw %>% mutate(sqrtdist = sqrt(DistanceFromHome)) %>% ggplot(aes(x=sqrtdis
 ```
 
 ```{r make_histograms}
+cuberoot <- function(arg)
+{
+  return(arg^(1/3))
+}
+mylog <- function(arg)
+{
+  return (log(1+arg))
+}
 noop <- function(arg)
 {
   return(arg)
 }
-myfun <- function(varname,fptr=noop)
+myqc <- function(varname,fptr=noop)
 {
   index <- which(colnames(train_raw)==varname)
   one_col <- train_raw %>% select(index)
@@ -105,19 +113,46 @@ myfun <- function(varname,fptr=noop)
                              ggplot(aes(sample=new_value)) + stat_qq() + ggtitle(varname)
   grid.arrange(p1,p2,nrow=1)
 }
+myqc <- function(varname,zb=0)
+{
+  index <- which(colnames(train_raw)==varname)
+  nbins <- 21
+  one_col <- train_raw %>% select(index)
+  colnames(one_col)  <- c('x')
+  p1 <- one_col %>% ggplot(aes(x=x)) + geom_histogram(bins=nbins) + ggtitle(varname)
+  p2 <- one_col %>% ggplot(aes(sample=x)) + stat_qq() + ggtitle(varname)
+  p3 <- one_col %>% mutate(new_value = log(x+zb)) %>%
+    ggplot(aes(x=new_value)) + geom_histogram(bins=nbins) + ggtitle(paste('log',varname))
+  p4 <- one_col %>% mutate(new_value = log(x+zb)) %>%
+    ggplot(aes(sample=new_value)) + stat_qq() + ggtitle(paste('log',varname))
+  p5 <- one_col %>% mutate(new_value = sqrt(x+zb)) %>%
+    ggplot(aes(x=new_value)) + geom_histogram(bins=nbins) + ggtitle(paste('sqrt',varname))
+  p6 <- one_col %>% mutate(new_value = sqrt(x+zb)) %>%
+    ggplot(aes(sample=new_value)) + stat_qq() + ggtitle(paste('sqrt',varname))
+  grid.arrange(p1,p2,p3,p4,p5,p6,nrow=3)
+}
 
-myfun('Age')
-myfun('DistanceFromHome',sqrt)
-myfun('MonthlyIncome',log)
-myfun('YearsAtCompany',sqrt)
-myfun('YearsSinceLastPromotion',sqrt)
-myfun('YearsWithCurrManager',sqrt)
-myfun('WorkLifeBalance')
-myfun('TotalWorkingYears',sqrt)
-myfun('PerformanceRating')
-myfun('PercentSalaryHike')
-myfun('JobLevel')
-myfun('StockOptionLevel')
+myqc('Age')
+myqc('DistanceFromHome')
+myqc('MonthlyIncome')
+myqc('YearsAtCompany',1)
+myqc('YearsSinceLastPromotion',1)
+myqc('YearsWithCurrManager',1)
+myqc('WorkLifeBalance')
+myqc('TotalWorkingYears',1)
+myqc('PerformanceRating')
+myqc('PercentSalaryHike')
+myqc('JobLevel')
+myqc('StockOptionLevel',1)
+myqc('Education')
+myqc('EnvironmentSatisfaction')
+myqc('JobInvolvement')
+myqc('JobSatisfaction')
+myqc('NumCompaniesWorked',1)
+myqc('RelationshipSatisfaction')
+myqc('TrainingTimesLastYear',1)
+myqc('WorkLifeBalance')
+myqc('YearsInCurrentRole',1)
 ```
 
 
