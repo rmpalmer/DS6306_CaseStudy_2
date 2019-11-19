@@ -90,24 +90,30 @@ train_raw %>% mutate(sqrtdist = sqrt(DistanceFromHome)) %>% ggplot(aes(x=sqrtdis
 ```
 
 ```{r make_histograms}
-myfun <- function(varname)
+noop <- function(arg)
+{
+  return(arg)
+}
+myfun <- function(varname,fptr=noop)
 {
   index <- which(colnames(train_raw)==varname)
   one_col <- train_raw %>% select(index)
   colnames(one_col)  <- c('x')
-  p1 <- one_col %>% ggplot(aes(x=x)) + geom_histogram() + ggtitle(varname)
-  p2 <- one_col %>% ggplot(aes(sample=x)) + stat_qq() + ggtitle(varname)
+  p1 <- one_col %>% mutate(new_value = fptr(x)) %>% 
+                             ggplot(aes(x=new_value)) + geom_histogram() + ggtitle(varname)
+  p2 <- one_col %>% mutate(new_value = fptr(x)) %>%
+                             ggplot(aes(sample=new_value)) + stat_qq() + ggtitle(varname)
   grid.arrange(p1,p2,nrow=1)
 }
 
 myfun('Age')
-myfun('DistanceFromHome')
-myfun('MonthlyIncome')
-myfun('YearsAtCompany')
-myfun('YearsSinceLastPromotion')
-myfun('YearsWithCurrManager')
+myfun('DistanceFromHome',sqrt)
+myfun('MonthlyIncome',log)
+myfun('YearsAtCompany',sqrt)
+myfun('YearsSinceLastPromotion',sqrt)
+myfun('YearsWithCurrManager',sqrt)
 myfun('WorkLifeBalance')
-myfun('TotalWorkingYears')
+myfun('TotalWorkingYears',sqrt)
 myfun('PerformanceRating')
 myfun('PercentSalaryHike')
 myfun('JobLevel')
