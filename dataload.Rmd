@@ -35,19 +35,19 @@ employee_data <- train_raw %>% select(-Over18,
          t_PerformanceRating = PerformanceRating,
          t_RelationshipSatisfaction = RelationshipSatisfaction,
          t_StockOptionLevel = StockOptionLevel,
-         t_TotalWorkingYears = TotalWorkingYears,
+         t_TotalWorkingYears = sqrt(TotalWorkingYears),
          t_TrainingTimesLastYear = TrainingTimesLastYear,
          t_WorkLifeBalance = WorkLifeBalance,
-         t_YearsAtCompany = YearsAtCompany,
-         t_YearsInCurrentRole = YearsInCurrentRole,
+         t_YearsAtCompany = log(YearsAtCompany),
+         t_YearsInCurrentRole = log(YearsInCurrentRole),
          t_YearsSinceLastPromotion = YearsSinceLastPromotion,
-         t_YearsWithCurrManager = YearsWithCurrManager)
+         t_YearsWithCurrManager = log(YearsWithCurrManager))
+	 
 # these are constant:
 #  Over18, StandardHours
 # these are redundant
 #  DailyRate, MonthlyRate, HourlyRate
 
-# Decide about HourlyRate, DailyRate, MonthlyIncome, MonthlyRate
 
 # identifiying:
 
