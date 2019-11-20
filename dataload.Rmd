@@ -15,16 +15,37 @@ library(tidyverse)
 # import raw data
 train_raw <- read.csv('CaseStudy2-data.csv') 
 
-# drop unused columns
+# 1) drop unused columns
+# 2) transform numeric columns 
 employee_data <- train_raw %>% select(-Over18,
                                       -EmployeeNumber,
                                       -EmployeeCount,
                                       -DailyRate,
                                       -MonthlyRate,
                                       -HourlyRate,
-                                      -StandardHours)
-
-# Over18 is a constant Y, so drop it
+                                      -StandardHours) %>%
+  mutate(t_DistanceFromHome = log(DistanceFromHome),
+         t_Education = Education,
+         t_EnvironmentSatisfaction = EnvironmentSatisfaction,
+         t_JobInvolvement = JobInvolvement,
+         t_JobLevel = JobLevel,
+         t_JobSatisfaction = JobSatisfaction,
+         t_NumCompaniesWorked = NumCompaniesWorked,
+         t_PercentSalaryHike = PercentSalaryHike,
+         t_PerformanceRating = PerformanceRating,
+         t_RelationshipSatisfaction = RelationshipSatisfaction,
+         t_StockOptionLevel = StockOptionLevel,
+         t_TotalWorkingYears = TotalWorkingYears,
+         t_TrainingTimesLastYear = TrainingTimesLastYear,
+         t_WorkLifeBalance = WorkLifeBalance,
+         t_YearsAtCompany = YearsAtCompany,
+         t_YearsInCurrentRole = YearsInCurrentRole,
+         t_YearsSinceLastPromotion = YearsSinceLastPromotion,
+         t_YearsWithCurrManager = YearsWithCurrManager)
+# these are constant:
+#  Over18, StandardHours
+# these are redundant
+#  DailyRate, MonthlyRate, HourlyRate
 
 # Decide about HourlyRate, DailyRate, MonthlyIncome, MonthlyRate
 
