@@ -16,7 +16,8 @@ library(tidyverse)
 train_raw <- read.csv('CaseStudy2-data.csv') 
 
 # 1) drop unused columns
-# 2) transform numeric columns 
+# 2) transform numeric columns
+#    some of the columns are log(value+1) to avoid log of zero...
 employee_data <- train_raw %>% select(-Over18,
                                       -EmployeeNumber,
                                       -EmployeeCount,
@@ -38,10 +39,10 @@ employee_data <- train_raw %>% select(-Over18,
          t_TotalWorkingYears = sqrt(TotalWorkingYears),
          t_TrainingTimesLastYear = TrainingTimesLastYear,
          t_WorkLifeBalance = WorkLifeBalance,
-         t_YearsAtCompany = log(YearsAtCompany),
-         t_YearsInCurrentRole = log(YearsInCurrentRole),
+         t_YearsAtCompany = log(YearsAtCompany+1),
+         t_YearsInCurrentRole = log(YearsInCurrentRole+1),
          t_YearsSinceLastPromotion = YearsSinceLastPromotion,
-         t_YearsWithCurrManager = log(YearsWithCurrManager))
+         t_YearsWithCurrManager = log(YearsWithCurrManager+1))
 	 
 # these are constant:
 #  Over18, StandardHours

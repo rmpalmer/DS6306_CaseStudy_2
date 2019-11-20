@@ -8,9 +8,87 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(caret)
+library(leaps)
+library(MASS)
+library(relaimpo)
+library(car)
 ```
 
 ```{r child = 'dataload.Rmd'}
+```
+
+```{r lm_common}
+all_predictors <- formula(MonthlyIncome ~
+                            Age +
+                            BusinessTravel +
+                            Department +
+                            DistanceFromHome +
+                            Education +
+                            EducationField +
+                            EnvironmentSatisfaction +
+                            Gender +
+                            JobInvolvement +
+                            JobLevel +
+                            JobRole +
+                            JobSatisfaction +
+                            MaritalStatus +
+                            NumCompaniesWorked +
+                            OverTime +
+                            PercentSalaryHike +
+                            PerformanceRating +
+                            RelationshipSatisfaction +
+                            StockOptionLevel +
+                            TotalWorkingYears +
+                            TrainingTimesLastYear +
+                            WorkLifeBalance +
+                            YearsAtCompany +
+                            YearsInCurrentRole +
+                            YearsSinceLastPromotion +
+                            YearsWithCurrManager)
+
+sensible_predictors <- formula(MonthlyIncome ~
+                            Age +
+                            BusinessTravel +
+                            Department +
+                            Education +
+                            EducationField +
+                            Gender +
+                            JobLevel +
+                            JobRole +
+                            MaritalStatus +
+                            PerformanceRating +
+                            StockOptionLevel +
+                            TotalWorkingYears +
+                            TrainingTimesLastYear +
+                            YearsAtCompany +
+                            YearsInCurrentRole)
+
+few_predictors <- formula(MonthlyIncome ~
+                            Age +
+                            Department +
+                            Education +
+                            EducationField +
+                            Gender +
+                            JobLevel +
+                            JobRole +
+                            PerformanceRating +
+                            TotalWorkingYears +
+                            YearsAtCompany )
+
+
+```
+
+```{r stepwise}
+all_fit <- lm(all_predictors,data=employee_data)
+stepwise <- stepAIC(all_fit,direction="both")
+stepwise$anova
+```
+
+```{r allsubsets}
+leaps <- regsubsets(all_predictors,data=employee_data,nbest=5)
+summary(leaps)
+#plot(leaps,scale="r2")
+#subsets(leaps,statistic="rsq")
 ```
 
 ```{r linear_model}

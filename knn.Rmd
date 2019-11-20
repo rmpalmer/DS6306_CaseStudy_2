@@ -36,7 +36,7 @@ normalized <- employee_data %>%
          z_YearsAtCompany = scale(t_YearsAtCompany),
          z_YearsInCurrentRole = scale(t_YearsInCurrentRole),
          z_YearsSinceLastPromotion = scale(t_YearsSinceLastPromotion),
-         z_YearsWithCurrManager = scale(t_YearsWithCurrManager) %>% 
+         z_YearsWithCurrManager = scale(t_YearsWithCurrManager)) %>% 
   select(Attrition,
          z_DistanceFromHome,
          z_Education,
@@ -57,8 +57,7 @@ normalized <- employee_data %>%
          z_YearsSinceLastPromotion,
          z_YearsWithCurrManager)
 	 
-cols_for_knn <- c(
-	 "z_DistanceFromHome",
+cols_for_knn <- c("z_DistanceFromHome",
          "z_Education",
          "z_EnvironmentSatisfaction",
          "z_JobInvolvement",
@@ -83,7 +82,7 @@ cols_for_knn <- c(
 set.seed(42)
 train_frac <- 0.7
 numks <- 25
-knn_trials <- 50
+knn_trials <- 10
 positive_value <- 'Yes'
 ```
 
