@@ -12,6 +12,7 @@ library(leaps)
 library(MASS)
 library(relaimpo)
 library(car)
+library(glmnet)
 ```
 
 ```{r child = 'dataload.Rmd'}
@@ -75,6 +76,27 @@ few_predictors <- formula(MonthlyIncome ~
                             TotalWorkingYears +
                             YearsAtCompany )
 
+numeric_predictors <- formula(MonthlyIncome ~
+                            Age +
+                            DistanceFromHome +
+                            Education +
+                            EnvironmentSatisfaction +
+                            JobInvolvement +
+                            JobLevel +
+                            JobSatisfaction +
+                            NumCompaniesWorked +
+                            PercentSalaryHike +
+                            PerformanceRating +
+                            RelationshipSatisfaction +
+                            StockOptionLevel +
+                            TotalWorkingYears +
+                            TrainingTimesLastYear +
+                            WorkLifeBalance +
+                            YearsAtCompany +
+                            YearsInCurrentRole +
+                            YearsSinceLastPromotion +
+                            YearsWithCurrManager)
+
 
 ```
 
@@ -84,20 +106,65 @@ stepwise <- stepAIC(all_fit,direction="both")
 stepwise$anova
 ```
 
-```{r allsubsets}
-leaps <- regsubsets(all_predictors,data=employee_data,nbest=5)
-summary(leaps)
-#plot(leaps,scale="r2")
-#subsets(leaps,statistic="rsq")
+## job level seems most important,  Perhaps do separate analysis for each job level
+
+```{r pick_numeric}
+num_fit <- lm(numeric_predictors,data=employee_data)
+stepwise_numeric <- stepAIC(num_fit, direction = "both")
+
+calc.relimp(stepwise_numeric,type=c("lmg","last","first","pratt"),
+   rela=TRUE)
+
+# Bootstrap Measures of Relative Importance (1000 samples) 
+boot <- boot.relimp(stepwise_numeric, b = 1000, type = c("lmg", 
+  "last", "first", "pratt"), rank = TRUE, 
+  diff = TRUE, rela = TRUE)
+booteval.relimp(boot) # print result
+plot(booteval.relimp(boot,sort=TRUE)) # plot result
 ```
 
-```{r linear_model}
+```{r allsubsets}
+leaps <- regsubsets(numeric_predictors,data=employee_data,nbest=5)
+summary(leaps)
+plot(leaps,scale="r2")
+subsets(leaps,statistic="rsq")
+```
+
+```{r lasso}
+x_vars <- model.matrix(all_predictors, employee_data)[,-1]
+y_var <- employee_data$MonthlyIncome
+lambda_seq <- 10^seq(2, -2, by = -.1)
+
+# Splitting the data into test and train
+set.seed(42)
+train_frac <- 0.7
+trainIndices = sample(1:dim(employee_data)[1],round(train_frac * dim(employee_data)[1]))
+test_x = (-trainIndices)
+test_y = y_var[test_x]
+
+cv_output <- cv.glmnet(x_vars[trainIndices,], y_var[trainIndices], 
+            alpha = 1, lambda = lambda_seq)
+
+# identifying best lamda
+best_lam <- cv_output$lambda.min
+
+# Rebuilding the model with best lamda value identified
+lasso_best <- glmnet(x_vars[trainIndices,], y_var[trainIndices], alpha = 1, lambda = best_lam)
+coef(lasso_best)
+```
+
+```{r loocv}
 train_control <- trainControl(method="LOOCV")
-salary_loocv <- train(MonthlyIncome ~ YearsAtCompany
+salary_loocv <- train(MonthlyIncome ~ YearsWithCurrManager
+                        +YearsSinceLastPromotion
+                        +TotalWorkingYears
                         +JobRole
                         +JobLevel
-                        +Department
-                        +EducationField,
+                        +JobInvolvement
+                        +Gender
+                        +Education
+                        +EducationField
+                        +BusinessTravel,
                       data=employee_data,
                       method="lm",trControl = train_control)
 print(salary_loocv)

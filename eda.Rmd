@@ -38,6 +38,29 @@ train_raw %>% ggplot() +
   geom_line(aes(x=MonthlyIncome,y=MonthlyRate,color="green"))
 ```
 
+
+```{r crossplot_wage_rates}
+# these rates seem to be unrelated to income.
+train_raw %>% 
+  select(MonthlyIncome,DailyRate,HourlyRate,MonthlyRate) %>% pairs()
+```
+
+```{r crossplot_years}
+train_raw %>%
+  select(YearsAtCompany,
+         YearsInCurrentRole,
+         YearsSinceLastPromotion,
+         YearsWithCurrManager,
+         NumCompaniesWorked) %>% pairs()
+```
+
+```{r crossplot_education}
+train_raw %>% 
+  select(Education,
+         JobLevel,
+         YearsAtCompany) %>% pairs()
+```
+
 ```{r}
 # histogram of Monthly Income, broken down by each of the 8 categorical varibles
 # BusinessTravel

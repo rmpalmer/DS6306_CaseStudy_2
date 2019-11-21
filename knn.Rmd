@@ -81,8 +81,8 @@ cols_for_knn <- c("z_DistanceFromHome",
 ```{r knn_parms}
 set.seed(42)
 train_frac <- 0.7
-numks <- 25
-knn_trials <- 10
+numks <- 50
+knn_trials <- 100
 positive_value <- 'Yes'
 ```
 
@@ -107,9 +107,9 @@ for (i in 1:numks)
     spec[j] = CM$byClass[2]
   }
   knn_stats[i,1] = i
-  knn_stats[i,2] = colMeans(acc)
-  knn_stats[i,3] = colMeans(sens)
-  knn_stats[i,4] = colMeans(spec)
+  knn_stats[i,2] = colMeans(acc,na.rm = TRUE)
+  knn_stats[i,3] = colMeans(sens,na.rm = TRUE)
+  knn_stats[i,4] = colMeans(spec,na.rm = TRUE)
 }
 
 ```
@@ -123,6 +123,9 @@ for_plot %>% ggplot(aes(x=k,y=value,col=variable)) +
   xlab('k') +
   ylab('percent') +
   ggtitle('Performance of Classifier by K')
+knn_stats
+stats_frame
+for_plot
 ```
 
 ```{r choose_k}

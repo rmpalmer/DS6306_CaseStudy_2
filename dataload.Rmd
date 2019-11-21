@@ -42,7 +42,7 @@ employee_data <- train_raw %>% select(-Over18,
          t_YearsAtCompany = log(YearsAtCompany+1),
          t_YearsInCurrentRole = log(YearsInCurrentRole+1),
          t_YearsSinceLastPromotion = YearsSinceLastPromotion,
-         t_YearsWithCurrManager = log(YearsWithCurrManager+1))
+         t_YearsWithCurrManager = log(YearsWithCurrManager+1) )
 	 
 # these are constant:
 #  Over18, StandardHours
