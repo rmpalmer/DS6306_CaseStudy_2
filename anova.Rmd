@@ -1,0 +1,91 @@
+---
+title: "Anova"
+author: "R.M. Palmer"
+date: "11/21/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(devtools)
+library(ggpubr)
+```
+
+```{r child = 'dataload.Rmd'}
+```
+
+```{r anova_groups}
+anova_qc_1 <- function(varname)
+{
+  # group and summarise
+  index <- which(colnames(train_raw)==varname)
+  subset_df <- employee_data %>% select(MonthlyIncome,index)
+  colnames(subset_df) <- c("MonthlyIncome","x")
+  subset_df %>% group_by(x) %>%
+    summarise(
+      count=n(),
+      mean=mean(MonthlyIncome),
+      sd=sd(MonthlyIncome)
+    )
+}
+anova_qc_2 <- function(varname)
+{
+  # box plot
+  ggboxplot(employee_data,x=varname,y="MonthlyIncome",
+          color=varname,ylab="MonthlyIncome",xlab=varname)
+}
+anova_qc_3 <- function(varname)
+{
+  # anova
+  formula <- as.formula(paste("MonthlyIncome",varname,sep=" ~ "))
+  res.aov <- aov(formula, data = employee_data)
+  summary(res.aov)
+}
+```
+
+```{r}
+anova_qc_1('BusinessTravel')
+anova_qc_2('BusinessTravel')
+anova_qc_3('BusinessTravel')
+```
+```{r}
+anova_qc_1('YearsSinceLastPromotion')
+anova_qc_2('YearsSinceLastPromotion')
+anova_qc_3('YearsSinceLastPromotion')
+```
+```{r}
+anova_qc_1('YearsWithCurrManager')
+anova_qc_2('YearsWithCurrManager')
+anova_qc_3('YearsWithCurrManager')
+```
+```{r}
+anova_qc_1('YearsAtCompany')
+anova_qc_2('YearsAtCompany')
+anova_qc_3('YearsAtCompany')
+```
+```{r}
+anova_qc_1('TotalWorkingYears')
+anova_qc_2('TotalWorkingYears')
+anova_qc_3('TotalWorkingYears')
+```
+```{r}
+anova_qc_1('JobLevel')
+anova_qc_2('JobLevel')
+anova_qc_3('JobLevel')
+```
+```{r}
+anova_qc_1('Education')
+anova_qc_2('Education')
+anova_qc_3('Education')
+```
+```{r}
+anova_qc_1('DistanceFromHome')
+anova_qc_2('DistanceFromHome')
+anova_qc_3('DistanceFromHome')
+```
+```{r}
+anova_qc_1('Age')
+anova_qc_2('Age')
+anova_qc_3('Age')
+```
