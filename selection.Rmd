@@ -72,6 +72,30 @@ stepwise_att$anova
 ```
 
 
+```{r relimp_att}
+calc.relimp(att_f_all,data=employee_data,type="lmg")
+```
+
+```{r relimp_mi}
+calc.relimp(mi_f_all,employee_data,type=c("lmg","last","first"),rela=TRUE)
+```
+
+```{r}
+# Bootstrap Measures of Relative Importance (1000 samples) 
+boot <- boot.relimp(stepwise_mi, 
+                    b = 1000,
+                    type = c("lmg", "last", "first"),
+                    rank=TRUE,diff = TRUE, rela = TRUE)
+booteval.relimp(boot,sort=TRUE) # print result
+plot(booteval.relimp(boot,sort=TRUE)) # plot result
+```
+
+```{r allsubsets}
+leaps <- regsubsets(att_f_all,data=employee_data,nbest=3)
+summary(leaps)
+plot(leaps,scale="r2")
+```
+
 ```{r loocv}
 train_control <- trainControl(method="LOOCV")
 salary_loocv <- train(MonthlyIncome ~ YearsWithCurrManager
