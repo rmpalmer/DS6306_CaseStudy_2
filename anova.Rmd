@@ -15,12 +15,17 @@ library(ggpubr)
 ```{r child = 'dataload.Rmd'}
 ```
 
+```{r anova_prep}
+for_anova <- employee_data %>%
+  mutate(numeric_attrition = as.numeric(Attrition))
+```
+
 ```{r anova_groups}
 anova_qc_1 <- function(varname)
 {
   # group and summarise
-  index <- which(colnames(employee_data)==varname)
-  subset_df <- employee_data %>% select(MonthlyIncome,index)
+  index <- which(colnames(for_anova)==varname)
+  subset_df <- for_anova %>% select(MonthlyIncome,index)
   colnames(subset_df) <- c("MonthlyIncome","x")
   subset_df %>% group_by(x) %>%
     summarise(
@@ -32,21 +37,21 @@ anova_qc_1 <- function(varname)
 anova_qc_2 <- function(varname)
 {
   # box plot
-  ggboxplot(employee_data,x=varname,y="MonthlyIncome",
+  ggboxplot(for_anova,x=varname,y="MonthlyIncome",
           color=varname,ylab="MonthlyIncome",xlab=varname)
 }
 anova_qc_3 <- function(varname)
 {
   # anova
   formula <- as.formula(paste("MonthlyIncome",varname,sep=" ~ "))
-  res.aov <- aov(formula, data = employee_data)
+  res.aov <- aov(formula, data = for_anova)
   summary(res.aov)
 }
 anova_qc_4 <- function(varname)
 {
   # anova
   formula <- as.formula(paste("numeric_attrition",varname,sep=" ~ "))
-  res.aov <- aov(formula, data = employee_data)
+  res.aov <- aov(formula, data = for_anova)
   summary(res.aov)
 }
 

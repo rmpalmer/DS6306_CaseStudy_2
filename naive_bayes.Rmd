@@ -41,34 +41,34 @@ nb_predictors <- c("Age",
                    "MonthlyIncome",
                    "NumCompaniesWorked",
                    "MaritalStatus",
-                   "OverTime",
                    "PercentSalaryHike",
                    "PerformanceRating",
                    "TotalWorkingYears",
                    "TrainingTimesLastYear",
                    "WorkLifeBalance",
                    "YearsAtCompany",
-                   "YearsSinceLastPromotion"
+                   "YearsSinceLastPromotion",
+                   "YearsWithCurrManager"
                    )
-nb_predictors_2 <- c("Age",
-                   "BusinessTravel",
-                   "Department",
-                   "DistanceFromHome",
-                   "EnvironmentSatisfaction",
-                   "Gender",
-                   "MonthlyIncome",
-                   "NumCompaniesWorked",
-                   "MaritalStatus",
-                   "OverTime",
-                   "PercentSalaryHike",
-                   "PerformanceRating",
-                   "TotalWorkingYears",
-                   "TrainingTimesLastYear",
-                   "WorkLifeBalance",
-                   "YearsAtCompany"
-                   )
+nb_predictors_2 <- c("MonthlyIncome",
+                     "Department",
+                     "EducationField",
+                     "Gender",
+                     "JobRole",
+                     "MaritalStatus",
+         "DistanceFromHome",
+         "EnvironmentSatisfaction",
+         "JobInvolvement",
+         "JobLevel",
+         "JobSatisfaction",
+         "StockOptionLevel",
+         "TotalWorkingYears",
+         "WorkLifeBalance",
+         "YearsAtCompany",
+         "YearsInCurrentRole",
+         "YearsWithCurrManager")
 nb_laplace <- 1
-nb_trials <- 10
+nb_trials <- 100
 train_frac <- 0.7
 positive_value <- 'Yes'
 # for repeatability

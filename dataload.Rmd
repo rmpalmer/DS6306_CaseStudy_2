@@ -28,7 +28,6 @@ my_transform <- function(raw_df)
                                -MonthlyRate,
                                -HourlyRate,
                                -StandardHours) %>%
-    mutate(numeric_attrition = as.numeric(Attrition)) %>%
     mutate(t_DistanceFromHome = log(DistanceFromHome),
        t_Education = Education,
        t_EnvironmentSatisfaction = EnvironmentSatisfaction,

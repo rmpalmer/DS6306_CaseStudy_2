@@ -43,34 +43,51 @@ for_knn <- employee_data %>%
 	 
 # convenient list of the colums
 cols_for_knn <- c("z_DistanceFromHome",
-         "z_Education",
          "z_EnvironmentSatisfaction",
          "z_JobInvolvement",
          "z_JobLevel",
          "z_JobSatisfaction",
-         "z_NumCompaniesWorked",
-         "z_PercentSalaryHike",
-         "z_PerformanceRating",
-         "z_RelationshipSatisfaction",
          "z_StockOptionLevel",
          "z_TotalWorkingYears",
-         "z_TrainingTimesLastYear",
          "z_WorkLifeBalance",
          "z_YearsAtCompany",
          "z_YearsInCurrentRole",
-         "z_YearsSinceLastPromotion",
          "z_YearsWithCurrManager")
 
+# omit because anova says not important
+# z_YearsSinceLastPromotion
+# education
+# trainingTimesLastYear
+# RelationshipSatisfaction
+# PerformanceRating
+# PercentSalaryHike
+# NumCompaniesWorked
+         
+         
+         
 ```
 
 ```{r knn_start}
 summary(for_knn$Attrition)
 ```
 
+```{r nb_sanity}
+truth <- count(employee_data,vars=Attrition)
+num_yes <- as.numeric(truth[2,2])
+num_no  <- as.numeric(truth[1,2])
+num_obs <- num_yes + num_no
+true_yes_perc <- round(100*num_yes/num_obs)
+true_no_perc  <- round(100*num_no/num_obs)
+```
+
+True percentage of "yes" values is `r true_yes_perc`  
+True percentage of "no"  values is `r true_no_perc` 
+
 ```{r knn_parms}
 set.seed(42)
 train_frac <- 0.7
 numks <- 50
+# knn_trials <- 250
 knn_trials <- 250
 positive_value <- 'Yes'
 ```
@@ -81,12 +98,14 @@ positive_value <- 'Yes'
 #   split data into 70% training and 30% test
 #   make classifier and from the confusion matrix,
 #   save the accuracy, sensitivity, and specificity
-knn_stats = matrix(nrow=numks,ncol=4)
+knn_stats = matrix(nrow=numks,ncol=6)
 for (i in 1:numks)
 {
   acc  = matrix(nrow=knn_trials,ncol=1)
   sens = matrix(nrow=knn_trials,ncol=1)
   spec = matrix(nrow=knn_trials,ncol=1)
+  pcyes = matrix(nrow=knn_trials,ncol=1)
+  pcno  = matrix(nrow=knn_trials,ncol=1)
   for (j in 1:knn_trials)
   {
     trainIndices = sample(1:dim(for_knn)[1],round(train_frac * dim(for_knn)[1]))
@@ -95,10 +114,18 @@ for (i in 1:numks)
     classifications = knn(trainData[,cols_for_knn],
                               testData[,cols_for_knn],
                               trainData$Attrition, prob = TRUE, k = i)
+    tmp <- data.frame(classifications)
+    answers <- count(tmp,vars=classifications)
+    num_yes <- as.numeric(answers[2,2])
+    num_no  <- as.numeric(answers[1,2])
+    num_obs <- num_yes + num_no
+
     CM = confusionMatrix(table(testData$Attrition,classifications),positive=positive_value)
     acc[j]  = CM$overall[1]
     sens[j] = CM$byClass[1]
     spec[j] = CM$byClass[2]
+    pcyes[j] = num_yes / num_obs
+    pcno[j]  = num_no / num_obs
   }
   
   # make a matrix with accuracy, sensitivity, and specificity
@@ -106,36 +133,36 @@ for (i in 1:numks)
   knn_stats[i,2] = colMeans(acc,na.rm = TRUE)
   knn_stats[i,3] = colMeans(sens,na.rm = TRUE)
   knn_stats[i,4] = colMeans(spec,na.rm = TRUE)
+  knn_stats[i,5] = colMeans(pcyes,na.rm = TRUE)
+  knn_stats[i,6] = colMeans(pcno,na.rm = TRUE)
 }
 
 ```
 
 ```{r plot_k_stats}
 stats_frame <- data.frame(knn_stats)
-colnames(stats_frame) <- c("k","accuracy","sensitivity","specificity")
+colnames(stats_frame) <- c("k","accuracy","sensitivity","specificity","Perc_Yes","Perc_No")
 for_plot <- reshape2::melt(stats_frame,id.var='k')
 for_plot %>% ggplot(aes(x=k,y=value,col=variable)) + 
   geom_line() +
   xlab('k') +
   ylab('percent') +
   ggtitle('Performance of Classifier by K')
-knn_stats
-stats_frame
-for_plot
 ```
 
 ```{r choose_k}
 combined_stats <- stats_frame %>% 
   mutate(sums = accuracy + sensitivity + specificity) 
 
-# subjective choice
-chosen_k = 23
+max_acc_k <- which.max(knn_stats[,2])
+chosen_k <- max_acc_k
 
 chosen_acc  <- round(100*combined_stats$accuracy[chosen_k])
 chosen_sens <- round(100*combined_stats$sensitivity[chosen_k])
 chosen_spec <- round(100*combined_stats$specificity[chosen_k])
 ```
 
+max accuracy is at `r max_acc_k`
 
 we choose `r chosen_k` as best overall, because the sensitivity stops increasing at that point.
 
@@ -150,6 +177,14 @@ CM_knn = confusionMatrix(table(as.factor(for_knn$Attrition),knn_pred),positive=p
 knn_acc <- CM_knn$overall[1] # accuracy
 knn_sens <- CM_knn$byClass[1] # sensitivity
 knn_spec <- CM_knn$byClass[2] # specificity
+
+tmp <- data.frame(knn_pred)
+answers <- count(tmp,vars=knn_pred)
+num_yes <- as.numeric(answers[2,2])
+num_no  <- as.numeric(answers[1,2])
+num_obs <- num_yes + num_no
+perc_yes <- round(100*num_yes/num_obs)
+perc_no  <- round(100*num_no/num_obs)
 ```
 
 Using the entire dataset,
@@ -170,6 +205,6 @@ blind_test <- my_transform(blind_raw)
 predicted_attrition <- knn(for_knn[,cols_for_knn],
                            blind_test[,cols_for_knn],
                            for_knn$Attrition,k=chosen_k)
-predicted_attrition
+#predicted_attrition
 
 ```
