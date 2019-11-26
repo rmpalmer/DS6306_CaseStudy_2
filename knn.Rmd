@@ -40,18 +40,21 @@ for_knn <- employee_data %>%
          z_YearsInCurrentRole,
          z_YearsSinceLastPromotion,
          z_YearsWithCurrManager)
-	 
-# convenient list of the colums
+
+# selected by stepwise AIC
 cols_for_knn <- c("z_DistanceFromHome",
          "z_EnvironmentSatisfaction",
          "z_JobInvolvement",
          "z_JobLevel",
          "z_JobSatisfaction",
+         "z_NumCompaniesWorked",
+         "z_RelationshipSatisfaction",
          "z_StockOptionLevel",
          "z_TotalWorkingYears",
          "z_WorkLifeBalance",
          "z_YearsAtCompany",
          "z_YearsInCurrentRole",
+         "z_YearsSinceLastPromotion",
          "z_YearsWithCurrManager")
 
 # omit because anova says not important
@@ -88,7 +91,7 @@ set.seed(42)
 train_frac <- 0.7
 numks <- 50
 # knn_trials <- 250
-knn_trials <- 250
+knn_trials <- 50
 positive_value <- 'Yes'
 ```
 
@@ -164,7 +167,7 @@ chosen_spec <- round(100*combined_stats$specificity[chosen_k])
 
 max accuracy is at `r max_acc_k`
 
-we choose `r chosen_k` as best overall, because the sensitivity stops increasing at that point.
+we choose `r chosen_k` to go forward in constructing a classifier.
 
 That value of k, on our train and test split, gives and average accuracy of `k chosen_acc`, an average sensitivity of `k chosen_sens` and a specificity of `k chosen_spec`.
 
@@ -202,9 +205,9 @@ KNN specificity is `r format(100*knn_spec,digits=2)` %.
 
 blind_raw <- read.csv('CaseStudy2CompSetNoAttrition.csv')
 blind_test <- my_transform(blind_raw)
-predicted_attrition <- knn(for_knn[,cols_for_knn],
-                           blind_test[,cols_for_knn],
-                           for_knn$Attrition,k=chosen_k)
+#predicted_attrition <- knn(for_knn[,cols_for_knn],
+#                           blind_test[,cols_for_knn],
+#                           for_knn$Attrition,k=chosen_k)
 #predicted_attrition
 
 ```

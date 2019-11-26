@@ -7,12 +7,8 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(caret)
-library(leaps)
-library(MASS)
 library(relaimpo)
-library(car)
-library(glmnet)
+library(MASS)
 ```
 
 ```{r child = 'dataload.Rmd'}
@@ -61,58 +57,40 @@ att_f_fac <- as.formula(paste("numeric_attrition ~ ",paste(factor_predictors,col
 ```{r stepwise_selection_mi}
 mi_fit <- lm(mi_f_all, data=employee_data)
 stepwise_mi <- stepAIC(mi_fit,direction="both")
-stepwise_mi$anova
+#stepwise_mi$anova
 stepwise_mi$call
 ```
 
 ```{r stepwise_selection_att}
 att_fit <- lm(att_f_all, data=employee_data)
 stepwise_att <- stepAIC(att_fit,direction="both")
-stepwise_att$anova
+#stepwise_att$anova
+stepwise_att$call
 ```
 
-
-```{r relimp_att_form}
-calc.relimp(att_f_all,data=employee_data,type="lmg")
+```{r relimp_att}
+att_fit_relimp <- calc.relimp(att_fit,type="last")
+att_fit_ranking <- sort(att_fit_relimp$last.rank)
+att_fit_top3 <- att_fit_ranking[1:3]
 ```
 
-```{r relimp_att_model}
-calc.relimp(att_fit,type="lmg")
-```
+From the relaimpo package,  
+The most important predictors for attrition are `r names(att_fit_top3)`  
+The complete list is `r names(att_fit_ranking)`
 
 ```{r relimp_mi}
-calc.relimp(mi_f_all,employee_data,type=c("lmg","last","first"),rela=TRUE)
+mi_fit_relimp <- calc.relimp(mi_fit,type="last")
+mi_fit_ranking <- sort(mi_fit_relimp$last.rank)
+mi_fit_top3 <- mi_fit_ranking[1:3]
 ```
 
-```{r}
-# Bootstrap Measures of Relative Importance (1000 samples) 
-boot <- boot.relimp(stepwise_mi, 
-                    b = 1000,
-                    type = c("lmg", "last", "first"),
-                    rank=TRUE,diff = TRUE, rela = TRUE)
-booteval.relimp(boot,sort=TRUE) # print result
-plot(booteval.relimp(boot,sort=TRUE)) # plot result
-```
+From the relaimpo package,  
+The most important predictors for Monthly Income are `r names(mi_fit_top3)`  
+The complete list is `r names(att_fit_ranking)`
 
-```{r allsubsets}
-leaps <- regsubsets(att_f_all,data=employee_data,nbest=3)
-summary(leaps)
-plot(leaps,scale="r2")
-```
-
-```{r loocv}
-train_control <- trainControl(method="LOOCV")
-salary_loocv <- train(MonthlyIncome ~ YearsWithCurrManager
-                        +YearsSinceLastPromotion
-                        +TotalWorkingYears
-                        +JobRole
-                        +JobLevel
-                        +JobInvolvement
-                        +Gender
-                        +Education
-                        +EducationField
-                        +BusinessTravel,
-                      data=employee_data,
-                      method="lm",trControl = train_control)
-print(salary_loocv)
+```{r select_knn_predictors}
+knn_fit <- lm(att_f_num, data=employee_data)
+stepwise_knn <- stepAIC(knn_fit,direction="both")
+#stepwise_knn$anova
+stepwise_knn$call
 ```
