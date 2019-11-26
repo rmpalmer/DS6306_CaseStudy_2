@@ -19,178 +19,57 @@ library(glmnet)
 ```
 
 ```{r lm_common}
-all_predictors <- formula(MonthlyIncome ~
-                            Age +
-                            BusinessTravel +
-                            Department +
-                            DistanceFromHome +
-                            Education +
-                            EducationField +
-                            EnvironmentSatisfaction +
-                            Gender +
-                            JobInvolvement +
-                            JobLevel +
-                            JobRole +
-                            JobSatisfaction +
-                            MaritalStatus +
-                            NumCompaniesWorked +
-                            PercentSalaryHike +
-                            PerformanceRating +
-                            RelationshipSatisfaction +
-                            StockOptionLevel +
-                            TotalWorkingYears +
-                            TrainingTimesLastYear +
-                            WorkLifeBalance +
-                            YearsAtCompany +
-                            YearsInCurrentRole +
-                            YearsSinceLastPromotion +
-                            YearsWithCurrManager)
+numeric_predictors <- c("Age",
+"DistanceFromHome",
+"Education",
+"EnvironmentSatisfaction",
+"JobInvolvement",
+"JobLevel",
+"JobSatisfaction",
+"NumCompaniesWorked",
+"PercentSalaryHike",
+"PerformanceRating",
+"RelationshipSatisfaction",
+"StockOptionLevel",
+"TotalWorkingYears",
+"TrainingTimesLastYear",
+"WorkLifeBalance",
+"YearsAtCompany",
+"YearsInCurrentRole",
+"YearsSinceLastPromotion",
+"YearsWithCurrManager")
 
-sensible_predictors <- formula(MonthlyIncome ~
-                            Age +
-                            BusinessTravel +
-                            Department +
-                            Education +
-                            EducationField +
-                            Gender +
-                            JobLevel +
-                            JobRole +
-                            MaritalStatus +
-                            PerformanceRating +
-                            StockOptionLevel +
-                            TotalWorkingYears +
-                            TrainingTimesLastYear +
-                            YearsAtCompany +
-                            YearsInCurrentRole)
+factor_predictors <- c("BusinessTravel",
+"Department",
+"EducationField",
+"Gender",
+"JobRole",
+"MaritalStatus")
 
-few_predictors <- formula(MonthlyIncome ~
-                            Age +
-                            Department +
-                            Education +
-                            EducationField +
-                            Gender +
-                            JobLevel +
-                            JobRole +
-                            PerformanceRating +
-                            TotalWorkingYears +
-                            YearsAtCompany )
+all_predictors <- c(factor_predictors,numeric_predictors)
 
-numeric_predictors <- formula(MonthlyIncome ~
-                            Age +
-                            DistanceFromHome +
-                            Education +
-                            EnvironmentSatisfaction +
-                            JobInvolvement +
-                            JobLevel +
-                            JobSatisfaction +
-                            NumCompaniesWorked +
-                            PercentSalaryHike +
-                            PerformanceRating +
-                            RelationshipSatisfaction +
-                            StockOptionLevel +
-                            TotalWorkingYears +
-                            TrainingTimesLastYear +
-                            WorkLifeBalance +
-                            YearsAtCompany +
-                            YearsInCurrentRole +
-                            YearsSinceLastPromotion +
-                            YearsWithCurrManager)
+mi_f_all <- as.formula(paste("MonthlyIncome ~ ",paste(all_predictors,collapse="+")))
+mi_f_num <- as.formula(paste("MonthlyIncome ~ ",paste(numeric_predictors,collapse="+")))
+mi_f_fac <- as.formula(paste("MonthlyIncome ~ ",paste(factor_predictors,collapse="+")))
 
-factor_predictors <- formula(MonthlyIncome ~ 
-                            BusinessTravel +
-                            Department +
-                            EducationField +
-                            Gender +
-                            JobRole +
-                            MaritalStatus  )
+selected_by_stepwise <- c("BusinessTravel",
+"Gender",
+"JobRole",
+"DistanceFromHome",
+"JobLevel",
+"PercentSalaryHike",
+"PerformanceRating",
+"TotalWorkingYears",
+"YearsSinceLastPromotion",
+"YearsWithCurrManager)
 
-dummy_predictors  <- formula(q ~ 
-                            BusinessTravel +
-                            Department +
-                            EducationField +
-                            Gender +
-                            JobRole +
-                            MaritalStatus  )
+mi_f_sel <- as.formula(paste("MonthlyIncome ~ ",paste(all_predictors,collapse="+")))
 
-```
-
-```{r only_factors}
-factor_fit <- lm(factor_predictors, data=employee_data)
-stepwise_factor <- stepAIC(factor_fit,direction="both")
-stepwise_factor$anova
-
-dummy <- employee_data %>% mutate(q=as.numeric(Attrition))
-factor_fit <- lm(dummy_predictors, data=dummy)
-stepwise_factor <- stepAIC(factor_fit,direction="both")
-stepwise_factor$anova
-
-```
-
-```{r stepwise}
-all_fit <- lm(all_predictors,data=employee_data)
-stepwise <- stepAIC(all_fit,direction="both")
-stepwise$anova
-```
-
-## job level seems most important,  Perhaps do separate analysis for each job level
-
-```{r pick_numeric}
-num_fit <- lm(numeric_predictors,data=employee_data)
-stepwise_numeric <- stepAIC(num_fit, direction = "both")
-
-calc.relimp(stepwise_numeric,type=c("lmg","last","first","pratt"),
-   rela=TRUE)
-
-# Bootstrap Measures of Relative Importance (1000 samples) 
-boot <- boot.relimp(stepwise_numeric, b = 1000, type = c("lmg", 
-  "last", "first", "pratt"), rank = TRUE, 
-  diff = TRUE, rela = TRUE)
-booteval.relimp(boot) # print result
-plot(booteval.relimp(boot,sort=TRUE)) # plot result
-```
-
-```{r allsubsets}
-#leaps <- regsubsets(numeric_predictors,data=employee_data,nbest=5)
-#summary(leaps)
-#plot(leaps,scale="r2")
-#subsets(leaps,statistic="rsq")
-```
-
-```{r lasso}
-x_vars <- model.matrix(all_predictors, employee_data)[,-1]
-y_var <- employee_data$MonthlyIncome
-lambda_seq <- 10^seq(2, -2, by = -.1)
-
-# Splitting the data into test and train
-set.seed(42)
-train_frac <- 0.7
-trainIndices = sample(1:dim(employee_data)[1],round(train_frac * dim(employee_data)[1]))
-test_x = (-trainIndices)
-test_y = y_var[test_x]
-
-cv_output <- cv.glmnet(x_vars[trainIndices,], y_var[trainIndices], 
-            alpha = 1, lambda = lambda_seq)
-
-# identifying best lamda
-best_lam <- cv_output$lambda.min
-
-# Rebuilding the model with best lamda value identified
-lasso_best <- glmnet(x_vars[trainIndices,], y_var[trainIndices], alpha = 1, lambda = best_lam)
-coef(lasso_best)
 ```
 
 ```{r loocv}
 train_control <- trainControl(method="LOOCV")
-salary_loocv <- train(MonthlyIncome ~ YearsWithCurrManager
-                        +YearsSinceLastPromotion
-                        +TotalWorkingYears
-                        +JobRole
-                        +JobLevel
-                        +JobInvolvement
-                        +Gender
-                        +Education
-                        +EducationField
-                        +BusinessTravel,
+salary_loocv <- train(mi_f_sel,
                       data=employee_data,
                       method="lm",trControl = train_control)
 print(salary_loocv)
