@@ -80,17 +80,12 @@ calc.relimp(stepwise_att,employee_data,type=c("lmg","last","first"),rela=TRUE)
 calc.relimp(mi_f_all,employee_data,type=c("lmg","last","first"),rela=TRUE)
 ```
 
-```{r pick_numeric}
-num_fit <- lm(numeric_predictors,data=employee_data)
-stepwise_numeric <- stepAIC(num_fit, direction = "both")
-
-calc.relimp(stepwise_numeric,type=c("lmg","last","first","pratt"),
-   rela=TRUE)
-
+```{r}
 # Bootstrap Measures of Relative Importance (1000 samples) 
-boot <- boot.relimp(stepwise_numeric, b = 1000, type = c("lmg", 
-  "last", "first", "pratt"), rank = TRUE, 
-  diff = TRUE, rela = TRUE)
+boot <- boot.relimp(stepwise_mi, 
+                    b = 1000,
+                    type = c("lmg", "last", "first"),
+                    rank=TRUE,diff = TRUE, rela = TRUE)
 booteval.relimp(boot) # print result
 plot(booteval.relimp(boot,sort=TRUE)) # plot result
 ```
