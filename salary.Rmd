@@ -34,7 +34,6 @@ all_predictors <- formula(MonthlyIncome ~
                             JobSatisfaction +
                             MaritalStatus +
                             NumCompaniesWorked +
-                            OverTime +
                             PercentSalaryHike +
                             PerformanceRating +
                             RelationshipSatisfaction +
@@ -97,6 +96,33 @@ numeric_predictors <- formula(MonthlyIncome ~
                             YearsSinceLastPromotion +
                             YearsWithCurrManager)
 
+factor_predictors <- formula(MonthlyIncome ~ 
+                            BusinessTravel +
+                            Department +
+                            EducationField +
+                            Gender +
+                            JobRole +
+                            MaritalStatus  )
+
+dummy_predictors  <- formula(q ~ 
+                            BusinessTravel +
+                            Department +
+                            EducationField +
+                            Gender +
+                            JobRole +
+                            MaritalStatus  )
+
+```
+
+```{r only_factors}
+factor_fit <- lm(factor_predictors, data=employee_data)
+stepwise_factor <- stepAIC(factor_fit,direction="both")
+stepwise_factor$anova
+
+dummy <- employee_data %>% mutate(q=as.numeric(Attrition))
+factor_fit <- lm(dummy_predictors, data=dummy)
+stepwise_factor <- stepAIC(factor_fit,direction="both")
+stepwise_factor$anova
 
 ```
 
@@ -124,10 +150,10 @@ plot(booteval.relimp(boot,sort=TRUE)) # plot result
 ```
 
 ```{r allsubsets}
-leaps <- regsubsets(numeric_predictors,data=employee_data,nbest=5)
-summary(leaps)
-plot(leaps,scale="r2")
-subsets(leaps,statistic="rsq")
+#leaps <- regsubsets(numeric_predictors,data=employee_data,nbest=5)
+#summary(leaps)
+#plot(leaps,scale="r2")
+#subsets(leaps,statistic="rsq")
 ```
 
 ```{r lasso}
