@@ -18,6 +18,7 @@ train_raw <- read.csv('CaseStudy2-data.csv')
 # define a function to do this, so that we can apply it on blind test datasets
 # put in data transformations to try to keep numeric columns looking normal
 # also scale data to comparable ranges, the better to feed knn
+# also make a numeric version of Attrition, for use in anova for EDA
 my_transform <- function(raw_df) 
 {
   xformed <- raw_df %>% select(-Over18,
@@ -27,6 +28,7 @@ my_transform <- function(raw_df)
                                -MonthlyRate,
                                -HourlyRate,
                                -StandardHours) %>%
+    mutate(numeric_attrition = as.numeric(Attrition)) %>%
     mutate(t_DistanceFromHome = log(DistanceFromHome),
        t_Education = Education,
        t_EnvironmentSatisfaction = EnvironmentSatisfaction,

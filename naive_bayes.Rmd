@@ -51,7 +51,6 @@ nb_predictors <- c("Age",
                    "YearsSinceLastPromotion"
                    )
 nb_predictors_2 <- c("Age",
-                   "Education",
                    "BusinessTravel",
                    "Department",
                    "DistanceFromHome",
@@ -66,8 +65,7 @@ nb_predictors_2 <- c("Age",
                    "TotalWorkingYears",
                    "TrainingTimesLastYear",
                    "WorkLifeBalance",
-                   "YearsAtCompany",
-                   "YearsSinceLastPromotion"
+                   "YearsAtCompany"
                    )
 nb_laplace <- 1
 nb_trials <- 10
