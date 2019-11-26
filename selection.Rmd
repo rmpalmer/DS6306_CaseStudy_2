@@ -72,8 +72,12 @@ stepwise_att$anova
 ```
 
 
-```{r relimp_att}
+```{r relimp_att_form}
 calc.relimp(att_f_all,data=employee_data,type="lmg")
+```
+
+```{r relimp_att_model}
+calc.relimp(att_fit,type="lmg")
 ```
 
 ```{r relimp_mi}
