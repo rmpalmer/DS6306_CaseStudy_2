@@ -86,7 +86,7 @@ boot <- boot.relimp(stepwise_mi,
                     b = 1000,
                     type = c("lmg", "last", "first"),
                     rank=TRUE,diff = TRUE, rela = TRUE)
-booteval.relimp(boot) # print result
+booteval.relimp(boot,sort=TRUE) # print result
 plot(booteval.relimp(boot,sort=TRUE)) # plot result
 ```
 
