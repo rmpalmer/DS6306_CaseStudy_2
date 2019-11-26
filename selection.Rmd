@@ -71,6 +71,15 @@ stepwise_att <- stepAIC(att_fit,direction="both")
 stepwise_att$anova
 ```
 
+
+```{r relimp_att}
+calc.relimp(stepwise_att,employee_data,type=c("lmg","last","first"),rela=TRUE)
+```
+
+```{r relimp_mi}
+calc.relimp(mi_f_all,employee_data,type=c("lmg","last","first"),rela=TRUE)
+```
+
 ```{r pick_numeric}
 num_fit <- lm(numeric_predictors,data=employee_data)
 stepwise_numeric <- stepAIC(num_fit, direction = "both")
