@@ -48,26 +48,27 @@ factor_predictors <- c("BusinessTravel",
 
 all_predictors <- c(factor_predictors,numeric_predictors)
 
-# income as a function of various sets of predictors
-mi_f_all <- as.formula(paste("MonthlyIncome ~ ",paste(all_predictors,collapse="+")
-mi_f_num <- as.formula(paste("MonthlyIncome ~ ",paste(numeric_predictors,collapse="+")
-mi_f_fac <- as.formula(paste("MonthlyIncome ~ ",paste(factor_predictors,collapse="+")
+mi_f_all <- as.formula(paste("MonthlyIncome ~ ",paste(all_predictors,collapse="+")))
+mi_f_num <- as.formula(paste("MonthlyIncome ~ ",paste(numeric_predictors,collapse="+")))
+mi_f_fac <- as.formula(paste("MonthlyIncome ~ ",paste(factor_predictors,collapse="+")))
 
 # numeric attribution as a function of various sets of predictors
-att_f_all <- as.formula(paste("numeric_attrition ~ ",paste(all_predictors,collapse="+")
-att_f_num <- as.formula(paste("numeric_attrition ~ ",paste(numeric_predictors,collapse="+")
-att_f_fac <- as.formula(paste("numeric_attrition ~ ",paste(factor_predictors,collapse="+")
+att_f_all <- as.formula(paste("numeric_attrition ~ ",paste(all_predictors,collapse="+")))
+att_f_num <- as.formula(paste("numeric_attrition ~ ",paste(numeric_predictors,collapse="+")))
+att_f_fac <- as.formula(paste("numeric_attrition ~ ",paste(factor_predictors,collapse="+")))
 ```
 
-```{r stepwise_selection}
+```{r stepwise_selection_mi}
 mi_fit <- lm(mi_f_all, data=employee_data)
 stepwise_mi <- stepAIC(mi_fit,direction="both")
 stepwise_mi$anova
+stepwise_mi$call
+```
 
+```{r stepwise_selection_att}
 att_fit <- lm(att_f_all, data=employee_data)
 stepwise_att <- stepAIC(att_fit,direction="both")
 stepwise_att$anova
-
 ```
 
 ```{r pick_numeric}
@@ -90,29 +91,6 @@ plot(booteval.relimp(boot,sort=TRUE)) # plot result
 #summary(leaps)
 #plot(leaps,scale="r2")
 #subsets(leaps,statistic="rsq")
-```
-
-```{r lasso}
-x_vars <- model.matrix(all_predictors, employee_data)[,-1]
-y_var <- employee_data$MonthlyIncome
-lambda_seq <- 10^seq(2, -2, by = -.1)
-
-# Splitting the data into test and train
-set.seed(42)
-train_frac <- 0.7
-trainIndices = sample(1:dim(employee_data)[1],round(train_frac * dim(employee_data)[1]))
-test_x = (-trainIndices)
-test_y = y_var[test_x]
-
-cv_output <- cv.glmnet(x_vars[trainIndices,], y_var[trainIndices], 
-            alpha = 1, lambda = lambda_seq)
-
-# identifying best lamda
-best_lam <- cv_output$lambda.min
-
-# Rebuilding the model with best lamda value identified
-lasso_best <- glmnet(x_vars[trainIndices,], y_var[trainIndices], alpha = 1, lambda = best_lam)
-coef(lasso_best)
 ```
 
 ```{r loocv}
