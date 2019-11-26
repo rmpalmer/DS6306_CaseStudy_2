@@ -91,14 +91,14 @@ set.seed(42)
 train_frac <- 0.7
 numks <- 50
 # knn_trials <- 250
-knn_trials <- 50
+knn_trials <- 250
 positive_value <- 'Yes'
 ```
 
 ```{r do_knn}
 # look for the best value of k
 #  do 100 trials, and for each trial
-#   split data into 70% training and 30% test
+#   split data into training and test
 #   make classifier and from the confusion matrix,
 #   save the accuracy, sensitivity, and specificity
 knn_stats = matrix(nrow=numks,ncol=6)
@@ -158,7 +158,8 @@ combined_stats <- stats_frame %>%
   mutate(sums = accuracy + sensitivity + specificity) 
 
 max_acc_k <- which.max(knn_stats[,2])
-chosen_k <- max_acc_k
+
+chosen_k <- 3
 
 chosen_acc  <- round(100*combined_stats$accuracy[chosen_k])
 chosen_sens <- round(100*combined_stats$sensitivity[chosen_k])
@@ -167,7 +168,10 @@ chosen_spec <- round(100*combined_stats$specificity[chosen_k])
 
 max accuracy is at `r max_acc_k`
 
-we choose `r chosen_k` to go forward in constructing a classifier.
+we choose `r chosen_k` to go forward in constructing a classifier, since
+although performance seems to increase, the number of predicted Yes and No
+responses continues to get further from the truth.  The classifier seems to 
+be moving more and more in the direction of calling everything a No.
 
 That value of k, on our train and test split, gives and average accuracy of `k chosen_acc`, an average sensitivity of `k chosen_sens` and a specificity of `k chosen_spec`.
 
@@ -198,16 +202,15 @@ KNN sensitivity is `r format(100*knn_sens,digits=2)` %.
 
 KNN specificity is `r format(100*knn_spec,digits=2)` %.
 
-
-
 ```{r knn_pred}
 # read in the blind test dataset
 
 blind_raw <- read.csv('CaseStudy2CompSetNoAttrition.csv')
 blind_test <- my_transform(blind_raw)
-#predicted_attrition <- knn(for_knn[,cols_for_knn],
-#                           blind_test[,cols_for_knn],
-#                           for_knn$Attrition,k=chosen_k)
-#predicted_attrition
-
+predicted_attrition <- knn(for_knn[,cols_for_knn],
+                           blind_test[,cols_for_knn],
+                           for_knn$Attrition,k=chosen_k)
+summary(predicted_attrition)
+for_submission <- cbind(blind_test$ID,predicted_attrition)
+write.csv(for_submission,file="Case2PredictionsPalmerAttrition.csv")
 ```
