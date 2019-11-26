@@ -61,7 +61,7 @@ selected_by_stepwise <- c("BusinessTravel",
 "PerformanceRating",
 "TotalWorkingYears",
 "YearsSinceLastPromotion",
-"YearsWithCurrManager)
+"YearsWithCurrManager")
 
 mi_f_sel <- as.formula(paste("MonthlyIncome ~ ",paste(all_predictors,collapse="+")))
 

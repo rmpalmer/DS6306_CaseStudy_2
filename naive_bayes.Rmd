@@ -18,7 +18,7 @@ library(caret)
 ```
 
 ```{r nb_sanity}
-truth <- count(employee_data,vars=Attrition)
+truth <- dplyr::count(employee_data,vars=Attrition)
 num_yes <- as.numeric(truth[2,2])
 num_no  <- as.numeric(truth[1,2])
 num_obs <- num_yes + num_no
