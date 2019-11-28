@@ -66,12 +66,8 @@ cols_for_knn <- c("z_DistanceFromHome",
 # ...
          
 # adjust the knn results by known probabilities
-knn_adjust <- function(orig_factor, num_no=1, num_yes=1)
+knn_adjust <- function(orig_factor, k, num_no=1, num_yes=1)
 {
-  # adjustment factors
-  n_factor <- 1/num_no
-  y_factor <- 1/num_yes
-  
   # original probabilities
   orig_win    <- attr(orig_factor,'prob')
   orig_lose   <- 1.0 - orig_win
@@ -80,14 +76,19 @@ knn_adjust <- function(orig_factor, num_no=1, num_yes=1)
   orig_answer <- as.character(orig_factor)
   other_answer <- ifelse(orig_answer == 'No','Yes','No')
   
-  # if the original answer was no, then adjust original probability by the no factor
-  new_win     <- orig_win  * ifelse (orig_answer == 'No', n_factor,y_factor)
+  win_votes <- k * orig_win
+  lose_votes <- k - win_votes
   
-  # if the original answer was yes, then adjust losing probability by the no factor
-  new_lose    <- orig_lose * ifelse (orig_answer == 'Yes',n_factor,y_factor)
+  # if the original answer was no, then divide win by total number of no's
+  #win  <- win_votes  / ifelse (orig_answer == 'No', num_no, num_yes)
+  win <- win_votes
   
-  # alter the answer if the probability order flipped
-  new_answer <- as.factor(ifelse( (new_lose > new_win), other_answer, orig_answer))
+  # if the original answer was yes, then divide lose by total number of no's
+  #lose <- lose_votes / ifelse (orig_answer == 'Yes',num_no,num_yes)
+  lose <- lose_votes
+  
+  # alter the answer if lose > win
+  new_answer <- as.factor(ifelse( (lose > win), other_answer, orig_answer))
   
   levels(new_answer) <- levels(orig_factor)
   return(new_answer)
@@ -102,11 +103,11 @@ summary(for_knn$Attrition)
 
 ```{r nb_sanity}
 truth <- dplyr::count(employee_data,vars=Attrition)
-num_yes <- as.numeric(truth[2,2])
-num_no  <- as.numeric(truth[1,2])
-num_obs <- num_yes + num_no
-true_yes_perc <- round(100*num_yes/num_obs)
-true_no_perc  <- round(100*num_no/num_obs)
+truth.yes <- as.numeric(truth[2,2])
+truth.no  <- as.numeric(truth[1,2])
+truth.nobs <- truth.yes + truth.no
+true_yes_perc <- round(100*truth.yes/truth.nobs)
+true_no_perc  <- round(100*truth.no/truth.nobs)
 ```
 
 True percentage of "yes" values is `r true_yes_perc`  
@@ -116,9 +117,9 @@ True percentage of "no"  values is `r true_no_perc`
 set.seed(42)
 train_frac <- 0.7
 # numks <- 50
-numks <- 10
+numks <- 50
 # knn_trials <- 250
-knn_trials <- 10
+knn_trials <- 100
 positive_value <- 'Yes'
 ```
 
@@ -144,7 +145,7 @@ for (i in 1:numks)
     raw_class = knn(trainData[,cols_for_knn],
                               testData[,cols_for_knn],
                               trainData$Attrition, prob = TRUE, k = i)
-    classifications = knn_adjust(raw_class)
+    classifications = knn_adjust(raw_class, k = i, num_no = , num_yes = )
     tmp <- data.frame(classifications)
     answers <- count(tmp,vars=classifications)
     num_yes <- as.numeric(answers[2,2])
@@ -187,7 +188,7 @@ combined_stats <- stats_frame %>%
 
 max_acc_k <- which.max(knn_stats[,2])
 
-chosen_k = 3
+chosen_k = max_acc_k
 
 chosen_acc  <- round(100*combined_stats$accuracy[chosen_k])
 chosen_sens <- round(100*combined_stats$sensitivity[chosen_k])
@@ -201,7 +202,7 @@ although performance seems to increase, the number of predicted Yes and No
 responses continues to get further from the truth.  The classifier seems to 
 be moving more and more in the direction of calling everything a No.
 
-That value of k, on our train and test split, gives and average accuracy of `k chosen_acc`, an average sensitivity of `k chosen_sens` and a specificity of `k chosen_spec`.
+That value of k, on our train and test split, gives and average accuracy of `r chosen_acc`, an average sensitivity of `r chosen_sens` and a specificity of `r chosen_spec`.
 
 ```{r knn_eval}
 # make a new classifier using all the data
