@@ -45,17 +45,15 @@ for_knn <- employee_data %>%
 cols_for_knn <- c("z_DistanceFromHome",
          "z_EnvironmentSatisfaction",
          "z_JobInvolvement",
-         "z_JobLevel",
          "z_JobSatisfaction",
          "z_NumCompaniesWorked",
          "z_RelationshipSatisfaction",
          "z_StockOptionLevel",
          "z_TotalWorkingYears",
+         "z_TrainingTimesLastYear",
          "z_WorkLifeBalance",
-         "z_YearsAtCompany",
          "z_YearsInCurrentRole",
-         "z_YearsSinceLastPromotion",
-         "z_YearsWithCurrManager")
+         "z_YearsSinceLastPromotion")
 
 # omit because anova says not important
 # z_YearsSinceLastPromotion
@@ -65,8 +63,36 @@ cols_for_knn <- c("z_DistanceFromHome",
 # PerformanceRating
 # PercentSalaryHike
 # NumCompaniesWorked
+# ...
          
-         
+# adjust the knn results by known probabilities
+knn_adjust <- function(orig_factor, num_no=1, num_yes=1)
+{
+  # adjustment factors
+  n_factor <- 1/num_no
+  y_factor <- 1/num_yes
+  
+  # original probabilities
+  orig_win    <- attr(orig_factor,'prob')
+  orig_lose   <- 1.0 - orig_win
+  
+  # What was original answer
+  orig_answer <- as.character(orig_factor)
+  other_answer <- ifelse(orig_answer == 'No','Yes','No')
+  
+  # if the original answer was no, then adjust original probability by the no factor
+  new_win     <- orig_win  * ifelse (orig_answer == 'No', n_factor,y_factor)
+  
+  # if the original answer was yes, then adjust losing probability by the no factor
+  new_lose    <- orig_lose * ifelse (orig_answer == 'Yes',n_factor,y_factor)
+  
+  # alter the answer if the probability order flipped
+  new_answer <- as.factor(ifelse( (new_lose > new_win), other_answer, orig_answer))
+  
+  levels(new_answer) <- levels(orig_factor)
+  return(new_answer)
+}
+
          
 ```
 
@@ -89,9 +115,10 @@ True percentage of "no"  values is `r true_no_perc`
 ```{r knn_parms}
 set.seed(42)
 train_frac <- 0.7
-numks <- 50
+# numks <- 50
+numks <- 10
 # knn_trials <- 250
-knn_trials <- 50
+knn_trials <- 10
 positive_value <- 'Yes'
 ```
 
@@ -114,9 +141,10 @@ for (i in 1:numks)
     trainIndices = sample(1:dim(for_knn)[1],round(train_frac * dim(for_knn)[1]))
     trainData = for_knn[trainIndices,]
     testData = for_knn[-trainIndices,]
-    classifications = knn(trainData[,cols_for_knn],
+    raw_class = knn(trainData[,cols_for_knn],
                               testData[,cols_for_knn],
                               trainData$Attrition, prob = TRUE, k = i)
+    classifications = knn_adjust(raw_class)
     tmp <- data.frame(classifications)
     answers <- count(tmp,vars=classifications)
     num_yes <- as.numeric(answers[2,2])
@@ -159,14 +187,14 @@ combined_stats <- stats_frame %>%
 
 max_acc_k <- which.max(knn_stats[,2])
 
-chosen_k <- 3
+chosen_k = 3
 
 chosen_acc  <- round(100*combined_stats$accuracy[chosen_k])
 chosen_sens <- round(100*combined_stats$sensitivity[chosen_k])
 chosen_spec <- round(100*combined_stats$specificity[chosen_k])
 ```
 
-max accuracy is at `r max_acc_k`
+max accuracy is at k = `r max_acc_k`.  
 
 we choose `r chosen_k` to go forward in constructing a classifier, since
 although performance seems to increase, the number of predicted Yes and No
