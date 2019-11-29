@@ -102,20 +102,20 @@ qc_plots <- function(qc,label)
 ```
 
 ```{r creosote}
-memory.size()
+
 # model with all possible predictors
 creosote_loocv <- train(mi_f_creosote,
                       data=employee_data,
                       method="lm",trControl = train_control)
 print(creosote_loocv)
-memory.size()
+
 creosote_r2 <- creosote_loocv$results$Rsquared
-memory.size()
+
 creosote_model <- creosote_loocv$finalModel
 summary(creosote_model)
-memory.size()
+
 creosote_qc <- make_qc(creosote_model)
-memory.size()
+
 ```
 
 ```{r}
@@ -135,12 +135,12 @@ ggplot(creosote_qc, aes(sample=Residuals)) +
 ```
 
 ```{r}
-memory.size()
+
 rm(creosote_loocv)
 rm(creosote_model)
 rm(creosote_qc)
 gc()
-memory.size()
+
 ```
 
 ```{r subjective}
@@ -175,12 +175,12 @@ ggplot(subjective_qc, aes(sample=Residuals)) +
 ```
 
 ```{r}
-memory.size()
+
 rm(subjective_loocv)
 rm(subjective_model)
 rm(subjective_qc)
 gc()
-memory.size()
+
 ```
 
 ```{r stepwise}
@@ -211,12 +211,12 @@ ggplot(stepwise_qc, aes(sample=Residuals)) +
 ```
 
 ```{r}
-memory.size()
+
 rm(stepwise_loocv)
 rm(stepwise_model)
 rm(stepwise_qc)
 gc()
-memory.size()
+
 ```
 
 
