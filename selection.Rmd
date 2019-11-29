@@ -42,14 +42,20 @@ factor_predictors <- c("BusinessTravel",
 "JobRole",
 "MaritalStatus")
 
-all_predictors <- c(factor_predictors,numeric_predictors)
-
-mi_f_all <- as.formula(paste("MonthlyIncome ~ ",paste(all_predictors,collapse="+")))
+mi_f_all <- as.formula(paste("t_MonthlyIncome ~ ",
+                             paste(numeric_predictors,collapse="+"),
+                             " * ",
+                             paste(factor_predictors,collapse="*")
+                             ))
 mi_f_num <- as.formula(paste("MonthlyIncome ~ ",paste(numeric_predictors,collapse="+")))
 mi_f_fac <- as.formula(paste("MonthlyIncome ~ ",paste(factor_predictors,collapse="+")))
 
-# numeric attribution as a function of various sets of predictors
-att_f_all <- as.formula(paste("numeric_attrition ~ ",paste(all_predictors,collapse="+")))
+att_f_all <- as.formula(paste("numeric_attrition ~ ",
+                             paste(numeric_predictors,collapse="+"),
+                             " * ",
+                             paste(factor_predictors,collapse="*")
+                             ))
+
 att_f_num <- as.formula(paste("numeric_attrition ~ ",paste(numeric_predictors,collapse="+")))
 att_f_fac <- as.formula(paste("numeric_attrition ~ ",paste(factor_predictors,collapse="+")))
 ```
