@@ -20,7 +20,7 @@ library(ggplot2)
 ```
 
 ```{r lm_common}
-numeric_predictors <- c("Age",
+all_numeric <- c("Age",
 "t_DistanceFromHome",
 "t_Education",
 "t_EnvironmentSatisfaction",
@@ -40,25 +40,18 @@ numeric_predictors <- c("Age",
 "t_YearsSinceLastPromotion",
 "t_YearsWithCurrManager")
 
-factor_predictors <- c("BusinessTravel",
+all_factors <- c("BusinessTravel",
 "Department",
 "EducationField",
 "Gender",
 "JobRole",
 "MaritalStatus")
 
-all_predictors <- c(factor_predictors,numeric_predictors)
 
-mi_f_all <- as.formula(paste("t_MonthlyIncome ~ ",paste(all_predictors,collapse="+")))
-mi_f_num <- as.formula(paste("t_MonthlyIncome ~ ",paste(numeric_predictors,collapse="+")))
-mi_f_fac <- as.formula(paste("t_MonthlyIncome ~ ",paste(factor_predictors,collapse="+")))
-
-selected_by_relaimpo <- c("")
-
-selected_by_stepwise <- c("BusinessTravel",
+stepwise_factors <- c("BusinessTravel",
 "Gender",
-"JobRole",
-"t_DistanceFromHome",
+"JobRole")
+stepwise_numeric <- c("t_DistanceFromHome",
 "t_JobLevel",
 "t_PercentSalaryHike",
 "t_PerformanceRating",
@@ -66,10 +59,10 @@ selected_by_stepwise <- c("BusinessTravel",
 "t_YearsSinceLastPromotion",
 "t_YearsWithCurrManager")
 
-subjective_predictors <- c("Gender",
+subjective_factors <- c("Gender",
 "JobRole",
-"EducationField",
-"t_JobLevel",
+"EducationField")
+subjective_numeric <- c("t_JobLevel",
 "t_TotalWorkingYears",
 "t_Education",
 "t_PerformanceRating",
@@ -78,9 +71,21 @@ subjective_predictors <- c("Gender",
 "t_YearsAtCompany")
                            
 
-mi_f_stepwise <- as.formula(paste("t_MonthlyIncome ~ ",paste(selected_by_stepwise,collapse="+")))
-mi_f_creosote <- as.formula(paste("t_MonthlyIncome ~ ",paste(all_predictors,collapse="+")))
-mi_f_subjective <- as.formula(paste("t_MonthlyIncome ~ ",paste(subjective_predictors,collapse="+")))
+mi_f_stepwise   <- as.formula(paste("t_MonthlyIncome ~ ",
+                             paste(stepwise_numeric,collapse="+"),
+                             " * ",
+                             paste(stepwise_factors,collapse="*")
+                             ))
+mi_f_creosote   <- as.formula(paste("t_MonthlyIncome ~ ",
+                             paste(all_numeric,collapse="+"),
+                             " * ",
+                             paste(all_factors,collapse="*")
+                             ))
+mi_f_subjective <- as.formula(paste("t_MonthlyIncome ~ ",
+                             paste(subjective_numeric,collapse="+"),
+                             " * ",
+                             paste(subjective_factors,collapse="*")
+                             ))
 
 train_control <- trainControl(method="LOOCV")
 ```
@@ -102,41 +107,46 @@ qc_plots <- function(qc,label)
 }
 ```
 
-```{r creosote}
-creosote_loocv <- train(mi_f_creosote,
+```{r stepwise}
+########################### stepwise ###################################
+
+# stepwise
+stepwise_loocv <- train(mi_f_stepwise,
                       data=employee_data,
                       method="lm",trControl = train_control)
-print(creosote_loocv)
-creosote_r2 <- creosote_loocv$results$Rsquared
-creosote_model <- creosote_loocv$finalModel
-summary(creosote_model)
-creosote_qc <- make_qc(creosote_model)
+print(stepwise_loocv)
+stepwise_r2 <- stepwise_loocv$results$Rsquared
+stepwise_model <- stepwise_loocv$finalModel
+summary(stepwise_model)
+stepwise_qc <- make_qc(stepwise_model)
 ```
-
 ```{r}
-ggplot(creosote_qc, aes(x=residuals)) + 
+ggplot(stepwise_qc, aes(x=residuals)) + 
   geom_histogram() + 
-  ggtitle(paste("Histogram of residuals from All predictors"))
+  ggtitle(paste("Histogram of residuals from Stepwise"))
 ```
 ```{r}
-ggplot(creosote_qc, aes(x=MonthlyIncome,y=predicted,col=JobRole)) +
+ggplot(stepwise_qc, aes(x=MonthlyIncome,y=predicted,col=Department)) +
   geom_point() + 
-  ggtitle(paste("predicted versus actual for All predictors"))
+  ggtitle(paste("predicted versus actual for Stepwise"))
 ```
 ```{r}
-ggplot(creosote_qc, aes(sample=residuals)) +
+ggplot(stepwise_qc, aes(sample=residuals)) +
   stat_qq() + 
-  ggtitle(paste("QQ of residuals for All predictors"))
+  ggtitle(paste("QQ of residuals for Stepwise"))
 ```
 
 ```{r}
-rm(creosote_loocv)
-#rm(creosote_model)
-rm(creosote_qc)
+rm(stepwise_loocv)
+rm(stepwise_model)
+rm(stepwise_qc)
 gc()
 ```
 
+
 ```{r subjective}
+########################### subjective ###################################
+
 # subjectively chosen predictors
 subjective_loocv <- train(mi_f_subjective,
                       data=employee_data,
@@ -168,42 +178,15 @@ ggplot(subjective_qc, aes(sample=residuals)) +
 
 ```{r}
 rm(subjective_loocv)
-#rm(subjective_model)
+rm(subjective_model)
 rm(subjective_qc)
 gc()
-```
-
-```{r stepwise}
-# stepwise
-stepwise_loocv <- train(mi_f_stepwise,
-                      data=employee_data,
-                      method="lm",trControl = train_control)
-print(stepwise_loocv)
-stepwise_r2 <- stepwise_loocv$results$Rsquared
-stepwise_model <- stepwise_loocv$finalModel
-summary(stepwise_model)
-stepwise_qc <- make_qc(stepwise_model)
-```
-```{r}
-ggplot(stepwise_qc, aes(x=residuals)) + 
-  geom_histogram() + 
-  ggtitle(paste("Histogram of residuals from Stepwise"))
-```
-```{r}
-ggplot(stepwise_qc, aes(x=MonthlyIncome,y=predicted,col=Department)) +
-  geom_point() + 
-  ggtitle(paste("predicted versus actual for Stepwise"))
-```
-```{r}
-ggplot(stepwise_qc, aes(sample=residuals)) +
-  stat_qq() + 
-  ggtitle(paste("QQ of residuals for Stepwise"))
 ```
 
 ```{r predict_known}
 reprise_raw <- read.csv('CaseStudy2-data.csv')
 reprise_test <- my_transform(reprise_raw)
-repredict <- predict(subjective_model, newdata = reprise_test)
+#repredict <- predict(subjective_model, newdata = reprise_test)
 
 ```
 
@@ -213,17 +196,11 @@ repredict <- predict(subjective_model, newdata = reprise_test)
 
 blind_raw <- read.csv('CaseStudy2CompSetNoSalary.csv')
 blind_test <- my_transform(blind_raw)
-predicted_salary <- predict(stepwise_model,newdata=blind_test)
+#predicted_salary <- predict(stepwise_model,newdata=blind_test)
 
-for_submission <- cbind(blind_test$ID,predicted_salary)
-colnames(for_submission) <- c("ID","Salary")
-write.csv(for_submission,file="Case2PredictionsPalmerSalary.csv",row.names=FALSE)
+#for_submission <- cbind(blind_test$ID,predicted_salary)
+#colnames(for_submission) <- c("ID","Salary")
+#write.csv(for_submission,file="Case2PredictionsPalmerSalary.csv",row.names=FALSE)
 
 ```
 
-```{r}
-rm(stepwise_loocv)
-#rm(stepwise_model)
-rm(stepwise_qc)
-gc()
-```
