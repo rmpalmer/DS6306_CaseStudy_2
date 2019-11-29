@@ -20,7 +20,7 @@ train_raw <- read.csv('CaseStudy2-data.csv')
 # also scale data to comparable ranges, the better to feed knn
 my_transform <- function(raw_df) 
 {
-  xformed <- raw_df %>% select(-Over18,
+  xformed <- raw_df %>% dplyr::select(-Over18,
                                -EmployeeNumber,
                                -EmployeeCount,
                                -DailyRate,

@@ -20,24 +20,24 @@ library(glmnet)
 
 ```{r lm_common}
 numeric_predictors <- c("Age",
-"DistanceFromHome",
-"Education",
-"EnvironmentSatisfaction",
-"JobInvolvement",
-"JobLevel",
-"JobSatisfaction",
-"NumCompaniesWorked",
-"PercentSalaryHike",
-"PerformanceRating",
-"RelationshipSatisfaction",
-"StockOptionLevel",
-"TotalWorkingYears",
-"TrainingTimesLastYear",
-"WorkLifeBalance",
-"YearsAtCompany",
-"YearsInCurrentRole",
-"YearsSinceLastPromotion",
-"YearsWithCurrManager")
+"t_DistanceFromHome",
+"t_Education",
+"t_EnvironmentSatisfaction",
+"t_JobInvolvement",
+"t_JobLevel",
+"t_JobSatisfaction",
+"t_NumCompaniesWorked",
+"t_PercentSalaryHike",
+"t_PerformanceRating",
+"t_RelationshipSatisfaction",
+"t_StockOptionLevel",
+"t_TotalWorkingYears",
+"t_TrainingTimesLastYear",
+"t_WorkLifeBalance",
+"t_YearsAtCompany",
+"t_YearsInCurrentRole",
+"t_YearsSinceLastPromotion",
+"t_YearsWithCurrManager")
 
 factor_predictors <- c("BusinessTravel",
 "Department",
@@ -52,25 +52,82 @@ mi_f_all <- as.formula(paste("MonthlyIncome ~ ",paste(all_predictors,collapse="+
 mi_f_num <- as.formula(paste("MonthlyIncome ~ ",paste(numeric_predictors,collapse="+")))
 mi_f_fac <- as.formula(paste("MonthlyIncome ~ ",paste(factor_predictors,collapse="+")))
 
+selected_by_relaimpo <- c("")
+
 selected_by_stepwise <- c("BusinessTravel",
 "Gender",
 "JobRole",
-"DistanceFromHome",
-"JobLevel",
-"PercentSalaryHike",
-"PerformanceRating",
-"TotalWorkingYears",
-"YearsSinceLastPromotion",
-"YearsWithCurrManager")
+"t_DistanceFromHome",
+"t_JobLevel",
+"t_PercentSalaryHike",
+"t_PerformanceRating",
+"t_TotalWorkingYears",
+"t_YearsSinceLastPromotion",
+"t_YearsWithCurrManager")
 
-mi_f_sel <- as.formula(paste("MonthlyIncome ~ ",paste(all_predictors,collapse="+")))
+subjective_predictors <- c("Gender",
+"JobRole",
+"t_JobLevel",
+"t_TotalWorkingYears",
+"t_Education",
+"t_PerformanceRating",
+"t_RelationshipSatisfaction",
+"t_StockOptionLevel",
+"t_YearsAtCompany")
+                           
 
+mi_f_stepwise <- as.formula(paste("MonthlyIncome ~ ",paste(selected_by_stepwise,collapse="+")))
+mi_f_creosote <- as.formula(paste("MonthlyIncome ~ ",paste(all_predictors,collapse="+")))
+mi_f_subjective <- as.formula(paste("MonthlyIncome ~ ",paste(subjective_predictors,collapse="+")))
+
+train_control <- trainControl(method="LOOCV")
 ```
 
 ```{r loocv}
-train_control <- trainControl(method="LOOCV")
-salary_loocv <- train(mi_f_sel,
+# model with all possible predictors
+creosote_loocv <- train(mi_f_creosote,
                       data=employee_data,
                       method="lm",trControl = train_control)
-print(salary_loocv)
+print(creosote_loocv)
+creosote_r2 <- creosote_loocv$results$Rsquared
+creosote_model <- creosote_loocv$finalModel
+summary(creosote_model)
+
+# subjectively chosen predictors
+subjective_loocv <- train(mi_f_subjective,
+                      data=employee_data,
+                      method="lm",trControl = train_control)
+print(subjective_loocv)
+subjective_r2 <- subjective_loocv$results$Rsquared
+subjective_model <- subjective_loocv$finalModel
+summary(subjective_model)
+
+# stepwise
+stepwise_loocv <- train(mi_f_stepwise,
+                      data=employee_data,
+                      method="lm",trControl = train_control)
+print(stepwise_loocv)
+stepwise_r2 <- stepwise_loocv$results$Rsquared
+stepwise_model <- stepwise_loocv$finalModel
+summary(stepwise_model)
 ```
+
+All predictors R-squared is `r creosote_r2`
+
+Subjective model R-squared is `r subjective_r2`
+
+Stepwise R-squared is `r stepwise_r2`
+
+```{r}
+# look at residuals on available data.
+
+# make final predictions
+
+```
+
+
+
+
+
+
+
