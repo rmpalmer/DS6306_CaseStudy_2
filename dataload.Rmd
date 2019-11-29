@@ -64,12 +64,13 @@ my_transform <- function(raw_df)
          z_YearsSinceLastPromotion = scale(t_YearsSinceLastPromotion),
          z_YearsWithCurrManager = scale(t_YearsWithCurrManager))
   
-  if ("Attrition" %in% colnames(raw_df)) {
-    xformed2 <- xformed %>% mutate(numeric_attrition = as.numeric(Attrition))
-    return(xformed2)
-  } else {
-    return(xformed)
+  if ("MonthlyIncome" %in% colnames(raw_df)) {
+    xformed$t_MonthlyIncome <- log(raw_df$MonthlyIncome)
   }
+  if ("Attrition" %in% colnames(raw_df)) {
+    xformed$numeric_attrition = as.numeric(raw_df$Attrition)
+  }
+  return(xformed)
 }
 
 # call the function

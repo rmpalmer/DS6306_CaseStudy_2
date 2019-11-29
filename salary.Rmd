@@ -49,9 +49,9 @@ factor_predictors <- c("BusinessTravel",
 
 all_predictors <- c(factor_predictors,numeric_predictors)
 
-mi_f_all <- as.formula(paste("MonthlyIncome ~ ",paste(all_predictors,collapse="+")))
-mi_f_num <- as.formula(paste("MonthlyIncome ~ ",paste(numeric_predictors,collapse="+")))
-mi_f_fac <- as.formula(paste("MonthlyIncome ~ ",paste(factor_predictors,collapse="+")))
+mi_f_all <- as.formula(paste("t_MonthlyIncome ~ ",paste(all_predictors,collapse="+")))
+mi_f_num <- as.formula(paste("t_MonthlyIncome ~ ",paste(numeric_predictors,collapse="+")))
+mi_f_fac <- as.formula(paste("t_MonthlyIncome ~ ",paste(factor_predictors,collapse="+")))
 
 selected_by_relaimpo <- c("")
 
@@ -78,26 +78,27 @@ subjective_predictors <- c("Gender",
 "t_YearsAtCompany")
                            
 
-mi_f_stepwise <- as.formula(paste("MonthlyIncome ~ ",paste(selected_by_stepwise,collapse="+")))
-mi_f_creosote <- as.formula(paste("MonthlyIncome ~ ",paste(all_predictors,collapse="+")))
-mi_f_subjective <- as.formula(paste("MonthlyIncome ~ ",paste(subjective_predictors,collapse="+")))
+mi_f_stepwise <- as.formula(paste("t_MonthlyIncome ~ ",paste(selected_by_stepwise,collapse="+")))
+mi_f_creosote <- as.formula(paste("t_MonthlyIncome ~ ",paste(all_predictors,collapse="+")))
+mi_f_subjective <- as.formula(paste("t_MonthlyIncome ~ ",paste(subjective_predictors,collapse="+")))
 
 train_control <- trainControl(method="LOOCV")
+```
 
+```{r useful_functions}
 make_qc <- function(model) 
 {
-  df <- data.frame(cbind(employee_data$MonthlyIncome,
-                         model$fitted.values,
-                         model$residuals))
-  colnames(df) <- c("True","Fitted","Residuals")
+  df <- employee_data
+  df$predicted <- exp(model$fitted.values)
+  df$residuals <- model$residuals
   return(df)
 }
 
 qc_plots <- function(qc,label)
 {
-  ggplot(qc, aes(x=Residuals)) + geom_histogram() + ggtitle(paste("Histograme of ",label,"residuals"))
-  ggplot(qc, aes(x=True,y=Fitted)) + geom_point() + ggtitle(paste("Fitted versus actual for ",label))
-  ggplot(qc, aes(sample=Residuals)) + stat_qq() + ggtitle(paste("QQ of residuals for",label))
+  ggplot(qc, aes(x=residuals)) + geom_histogram() + ggtitle(paste("Histograme of ",label,"residuals"))
+  ggplot(qc, aes(x=MonthlyIncome,y=predicted)) + geom_point() + ggtitle(paste("predicted versus actual for ",label))
+  ggplot(qc, aes(sample=residuals)) + stat_qq() + ggtitle(paste("QQ of residuals for",label))
 }
 ```
 
@@ -113,24 +114,24 @@ creosote_qc <- make_qc(creosote_model)
 ```
 
 ```{r}
-ggplot(creosote_qc, aes(x=Residuals)) + 
+ggplot(creosote_qc, aes(x=residuals)) + 
   geom_histogram() + 
   ggtitle(paste("Histogram of residuals from All predictors"))
 ```
 ```{r}
-ggplot(creosote_qc, aes(x=True,y=Fitted)) +
+ggplot(creosote_qc, aes(x=MonthlyIncome,y=predicted,col=JobRole)) +
   geom_point() + 
-  ggtitle(paste("Fitted versus actual for All predictors"))
+  ggtitle(paste("predicted versus actual for All predictors"))
 ```
 ```{r}
-ggplot(creosote_qc, aes(sample=Residuals)) +
+ggplot(creosote_qc, aes(sample=residuals)) +
   stat_qq() + 
   ggtitle(paste("QQ of residuals for All predictors"))
 ```
 
 ```{r}
 rm(creosote_loocv)
-rm(creosote_model)
+#rm(creosote_model)
 rm(creosote_qc)
 gc()
 ```
@@ -148,26 +149,26 @@ subjective_qc <- make_qc(subjective_model)
 ```
 
 ```{r}
-ggplot(subjective_qc, aes(x=Residuals)) + 
+ggplot(subjective_qc, aes(x=residuals)) + 
   geom_histogram() + 
   ggtitle(paste("Histogram of residuals from Subjective Model"))
 ```
 
 ```{r}
-ggplot(subjective_qc, aes(x=True,y=Fitted)) +
+ggplot(subjective_qc, aes(x=MonthlyIncome,y=predicted,color=EducationField)) +
   geom_point() + 
-  ggtitle(paste("Fitted versus actual for Subjective Model"))
+  ggtitle(paste("predicted versus actual for Subjective Model"))
 ```
 
 ```{r}
-ggplot(subjective_qc, aes(sample=Residuals)) +
+ggplot(subjective_qc, aes(sample=residuals)) +
   stat_qq() + 
   ggtitle(paste("QQ of residuals for Subjective Model"))
 ```
 
 ```{r}
 rm(subjective_loocv)
-rm(subjective_model)
+#rm(subjective_model)
 rm(subjective_qc)
 gc()
 ```
@@ -184,24 +185,45 @@ summary(stepwise_model)
 stepwise_qc <- make_qc(stepwise_model)
 ```
 ```{r}
-ggplot(stepwise_qc, aes(x=Residuals)) + 
+ggplot(stepwise_qc, aes(x=residuals)) + 
   geom_histogram() + 
   ggtitle(paste("Histogram of residuals from Stepwise"))
 ```
 ```{r}
-ggplot(stepwise_qc, aes(x=True,y=Fitted)) +
+ggplot(stepwise_qc, aes(x=MonthlyIncome,y=predicted,col=Department)) +
   geom_point() + 
-  ggtitle(paste("Fitted versus actual for Stepwise"))
+  ggtitle(paste("predicted versus actual for Stepwise"))
 ```
 ```{r}
-ggplot(stepwise_qc, aes(sample=Residuals)) +
+ggplot(stepwise_qc, aes(sample=residuals)) +
   stat_qq() + 
   ggtitle(paste("QQ of residuals for Stepwise"))
 ```
 
+```{r predict_known}
+reprise_raw <- read.csv('CaseStudy2-data.csv')
+reprise_test <- my_transform(reprise_raw)
+repredict <- predict(subjective_model, newdata = reprise_test)
+
+```
+
+
+```{r predict_salary}
+# read in the blind test dataset
+
+blind_raw <- read.csv('CaseStudy2CompSetNoSalary.csv')
+blind_test <- my_transform(blind_raw)
+predicted_salary <- predict(stepwise_model,newdata=blind_test)
+
+for_submission <- cbind(blind_test$ID,predicted_salary)
+colnames(for_submission) <- c("ID","Salary")
+write.csv(for_submission,file="Case2PredictionsPalmerSalary.csv",row.names=FALSE)
+
+```
+
 ```{r}
 rm(stepwise_loocv)
-rm(stepwise_model)
+#rm(stepwise_model)
 rm(stepwise_qc)
 gc()
 ```
