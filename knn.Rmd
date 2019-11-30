@@ -42,34 +42,19 @@ for_knn <- employee_data %>%
          z_YearsSinceLastPromotion,
          z_YearsWithCurrManager)
 
-# selected by stepwise AIC
-cols_for_knn <- c("z_DistanceFromHome",
-         "z_EnvironmentSatisfaction",
-         "z_JobInvolvement",
-         "z_JobSatisfaction",
-         "z_NumCompaniesWorked",
-         "z_RelationshipSatisfaction",
-         "z_StockOptionLevel",
-         "z_TotalWorkingYears",
-         "z_TrainingTimesLastYear",
-         "z_WorkLifeBalance",
-         "z_YearsInCurrentRole",
-         "z_YearsSinceLastPromotion")
 
-## t_DistanceFromHome           1  0.774  0.7743  7.1447 0.0076635 ** 
-## t_EnvironmentSatisfaction    1  0.659  0.6592  6.0826 0.0138496 *  
-## t_JobInvolvement             1  4.160  4.1601 38.3877 9.047e-10 ***
-## t_JobSatisfaction            1  1.608  1.6080 14.8383 0.0001260 ***
-## t_NumCompaniesWorked         1  0.363  0.3629  3.3482 0.0676286 .  
-## t_RelationshipSatisfaction   1  0.240  0.2404  2.2178 0.1367976    
-## t_TotalWorkingYears          1  7.246  7.2460 66.8625 1.061e-15 ***
-## t_TrainingTimesLastYear      1  0.514  0.5143  4.7461 0.0296407 *  
-## t_WorkLifeBalance            1  0.700  0.6996  6.4557 0.0112374 *  
-## t_YearsInCurrentRole         1  0.303  0.3033  2.7986 0.0947135 .  
-## t_YearsSinceLastPromotion    1  2.120  2.1203 19.5651 1.099e-05 ***
-## BusinessTravel               2  1.501  0.7507  6.9266 0.0010379 ** 
-## JobRole                      8  3.082  0.3852  3.5546 0.0004615 ***
-## MaritalStatus                2  2.517  1.2586 11.6139 1.057e-05 ***
+## t_DistanceFromHome           1  0.774  0.7743  6.8387 0.0090769 ** 
+## t_EnvironmentSatisfaction    1  0.659  0.6592  5.8221 0.0160348 *  
+## t_JobInvolvement             1  4.160  4.1601 36.7440 2.017e-09 ***
+## t_JobSatisfaction            1  1.608  1.6080 14.2029 0.0001754 ***
+## t_NumCompaniesWorked         1  0.363  0.3629  3.2049 0.0737718 .  
+## t_RelationshipSatisfaction   1  0.240  0.2404  2.1229 0.1454810    
+## t_StockOptionLevel           1  2.400  2.4004 21.2009 4.762e-06 ***
+## t_TotalWorkingYears          1  6.932  6.9325 61.2305 1.493e-14 ***
+## t_TrainingTimesLastYear      1  0.463  0.4629  4.0888 0.0434780 *  
+## t_WorkLifeBalance            1  0.599  0.5995  5.2947 0.0216292 *  
+## t_YearsInCurrentRole         1  0.198  0.1979  1.7481 0.1864682    
+## t_YearsSinceLastPromotion    1  2.044  2.0441 18.0539 2.383e-05 ***
 
 # adjust the knn results by known probabilities
 knn_adjust <- function(orig_factor, k, num_no=1, num_yes=1)
