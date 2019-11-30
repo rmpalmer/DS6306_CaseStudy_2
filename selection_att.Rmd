@@ -7,11 +7,11 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(relaimpo)
-library(MASS)
 ```
 
-```{r child = 'dataload.Rmd'}
+```{r}
+library(relaimpo)
+library(MASS)
 ```
 
 ```{r regression_common}
@@ -42,37 +42,34 @@ factor_predictors <- c("BusinessTravel",
 "JobRole",
 "MaritalStatus")
 
+all_predictors <- c(numeric_predictors,factor_predictors)
 
 att_f_all <- as.formula(paste("numeric_attrition ~ ",
-                             paste(numeric_predictors,collapse="+"),
-                             " * ",
-                             paste(factor_predictors,collapse="*")
-                             ))
+                             paste(all_predictors,collapse="+")))
 
-att_f_num <- as.formula(paste("numeric_attrition ~ ",paste(numeric_predictors,collapse="+")))
-att_f_fac <- as.formula(paste("numeric_attrition ~ ",paste(factor_predictors,collapse="+")))
+att_f_num <- as.formula(paste("numeric_attrition ~ ",
+                              paste(numeric_predictors,collapse="+")))
+
+att_f_fac <- as.formula(paste("numeric_attrition ~ ",
+                              paste(factor_predictors,collapse="+")))
 ```
 
-```{r stepwise_selection_att}
-att_fit <- lm(att_f_all, data=employee_data)
-stepwise_att <- stepAIC(att_fit,direction="both")
-#stepwise_att$anova
-stepwise_att$call
-```
+```{r select_nb_predictors}
+fit_nb <- lm(att_f_all, data=employee_data)
+fit_nb$call
+anova(fit_nb)
 
-```{r relimp_att}
-att_fit_relimp <- calc.relimp(att_fit,type="last")
-att_fit_ranking <- sort(att_fit_relimp$last.rank)
-att_fit_top3 <- att_fit_ranking[1:3]
+stepwise_nb <- stepAIC(fit_nb,direction="both")
+stepwise_nb$call
+anova(stepwise_nb)
 ```
-
-From the relaimpo package,  
-The most important predictors for attrition are `r names(att_fit_top3)`  
-The complete list is `r names(att_fit_ranking)`
 
 ```{r select_knn_predictors}
-knn_fit <- lm(att_f_num, data=employee_data)
-stepwise_knn <- stepAIC(knn_fit,direction="both")
-#stepwise_knn$anova
+fit_knn <- lm(att_f_all, data=employee_data)
+fit_knn$call
+anova(fit_knn)
+
+stepwise_knn <- stepAIC(fit_knn,direction="both")
 stepwise_knn$call
+anova(stepwise_knn)
 ```

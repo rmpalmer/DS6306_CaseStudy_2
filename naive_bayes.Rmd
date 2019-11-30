@@ -109,23 +109,31 @@ Average percentage of "no"  predictions is `r nb_no_perc`
 
 ## Subset the variables and try again
 
-From histograms in earlier EDA, it appears that these variables are most important:
+From stepwise variable selection, these are most important (in order)
 
-- MonthlyIncome
-- YearsAtCompany
-- WorkLifeBalance
 - TotalWorkingYears
-- JobLevel
-- StockOptionLevel
+- JobInvolvement
+- YearsSinceLastPromotion
+- JobSatisfaction
+- MaritalStatus
+- DistanceFromHome
+- BusinessTravel
+- WorkLifeBalance
+- EnvironmentSatisfaction
 
 
 ```{r do_nb_2}
-nb_predictors_2 <- c("MonthlyIncome",
-         "JobLevel",
-         "StockOptionLevel",
-         "TotalWorkingYears",
-         "WorkLifeBalance",
-         "YearsAtCompany")
+nb_predictors_2 <- c("BusinessTravel",
+                   "DistanceFromHome",
+                   "EnvironmentSatisfaction",
+                   "MaritalStatus",
+                   "TotalWorkingYears",
+                   "WorkLifeBalance",
+                   "YearsSinceLastPromotion",
+                   "JobInvolvement",
+                   "MaritalStatus"
+                   )
+                   
 
 # do the work
 acc_nb <- matrix(nrow=nb_trials, ncol = 5)

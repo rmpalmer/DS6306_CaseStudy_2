@@ -56,6 +56,20 @@ cols_for_knn <- c("z_DistanceFromHome",
          "z_YearsInCurrentRole",
          "z_YearsSinceLastPromotion")
 
+## t_DistanceFromHome           1  0.774  0.7743  7.1447 0.0076635 ** 
+## t_EnvironmentSatisfaction    1  0.659  0.6592  6.0826 0.0138496 *  
+## t_JobInvolvement             1  4.160  4.1601 38.3877 9.047e-10 ***
+## t_JobSatisfaction            1  1.608  1.6080 14.8383 0.0001260 ***
+## t_NumCompaniesWorked         1  0.363  0.3629  3.3482 0.0676286 .  
+## t_RelationshipSatisfaction   1  0.240  0.2404  2.2178 0.1367976    
+## t_TotalWorkingYears          1  7.246  7.2460 66.8625 1.061e-15 ***
+## t_TrainingTimesLastYear      1  0.514  0.5143  4.7461 0.0296407 *  
+## t_WorkLifeBalance            1  0.700  0.6996  6.4557 0.0112374 *  
+## t_YearsInCurrentRole         1  0.303  0.3033  2.7986 0.0947135 .  
+## t_YearsSinceLastPromotion    1  2.120  2.1203 19.5651 1.099e-05 ***
+## BusinessTravel               2  1.501  0.7507  6.9266 0.0010379 ** 
+## JobRole                      8  3.082  0.3852  3.5546 0.0004615 ***
+## MaritalStatus                2  2.517  1.2586 11.6139 1.057e-05 ***
 
 # adjust the knn results by known probabilities
 knn_adjust <- function(orig_factor, k, num_no=1, num_yes=1)
