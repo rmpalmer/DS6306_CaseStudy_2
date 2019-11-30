@@ -1,0 +1,94 @@
+---
+title: "TransformEDA"
+author: "R.M. Palmer"
+date: "11/15/2019"
+output: html_document
+---
+
+```{r eda, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(gridExtra)
+library(grid)
+library(ggplot2)
+library(lattice)
+
+```
+
+# EDA to consider data tranformations
+
+```{r child = 'dataload.Rmd'}
+```
+
+## Make histogram and QQ plot of each numeric variable with log and sqrt tranformations
+
+### Note that when the minimum value of a variable is 0, add 1 to make enable log transform
+
+```{r histogram_function}
+myqc <- function(varname,zb=0)
+{
+  index <- which(colnames(train_raw)==varname)
+  nbins <- 21
+  one_col <- train_raw %>% select(index)
+  colnames(one_col)  <- c('x')
+  p1 <- one_col %>% ggplot(aes(x=x)) + geom_histogram(bins=nbins) + ggtitle(varname)
+  p2 <- one_col %>% ggplot(aes(sample=x)) + stat_qq() + ggtitle(varname)
+  p3 <- one_col %>% mutate(new_value = log(x+zb)) %>%
+    ggplot(aes(x=new_value)) + geom_histogram(bins=nbins) + ggtitle(paste('log',varname))
+  p4 <- one_col %>% mutate(new_value = log(x+zb)) %>%
+    ggplot(aes(sample=new_value)) + stat_qq() + ggtitle(paste('log',varname))
+  p5 <- one_col %>% mutate(new_value = sqrt(x+zb)) %>%
+    ggplot(aes(x=new_value)) + geom_histogram(bins=nbins) + ggtitle(paste('sqrt',varname))
+  p6 <- one_col %>% mutate(new_value = sqrt(x+zb)) %>%
+    ggplot(aes(sample=new_value)) + stat_qq() + ggtitle(paste('sqrt',varname))
+  grid.arrange(p1,p2,p3,p4,p5,p6,nrow=3)
+}
+
+```
+
+```{r histogram_age}
+gc()
+myqc('Age')
+gc()
+myqc('DistanceFromHome')
+gc()
+myqc('MonthlyIncome')
+gc()
+myqc('YearsAtCompany',1)
+gc()
+myqc('YearsSinceLastPromotion',1)
+gc()
+myqc('YearsWithCurrManager',1)
+gc()
+myqc('WorkLifeBalance')
+gc()
+myqc('TotalWorkingYears',1)
+gc()
+myqc('PerformanceRating')
+gc()
+myqc('PercentSalaryHike')
+gc()
+myqc('JobLevel')
+gc()
+myqc('StockOptionLevel',1)
+gc()
+myqc('Education')
+gc()
+myqc('EnvironmentSatisfaction')
+gc()
+myqc('JobInvolvement')
+gc()
+myqc('JobSatisfaction')
+gc()
+myqc('NumCompaniesWorked',1)
+gc()
+myqc('RelationshipSatisfaction')
+gc()
+myqc('TrainingTimesLastYear',1)
+gc()
+myqc('WorkLifeBalance')
+gc()
+myqc('YearsInCurrentRole',1)
+gc()
+```
+
+

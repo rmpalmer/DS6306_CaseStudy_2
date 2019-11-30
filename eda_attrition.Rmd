@@ -1,5 +1,5 @@
 ---
-title: "EDA"
+title: "Attrition EDA"
 author: "R.M. Palmer"
 date: "11/15/2019"
 output: html_document
@@ -14,41 +14,15 @@ library(lattice)
 
 ```
 
+# EDA for predicting attrition
+
 ```{r child = 'dataload.Rmd'}
 ```
 
-```{r sanity_check}
-# check for NA values
-train_raw %>% 
-  select_if(function(x) any(is.na(x))) %>% 
-  summarise_each(funs(sum(is.na(.)))) -> raw_NA
-```
-
-
-```{r crossplot_wage_rates}
-# these rates seem to be unrelated to income.
-train_raw %>% 
-  select(MonthlyIncome,DailyRate,HourlyRate,MonthlyRate) %>% pairs()
-```
-
-```{r crossplot_years}
-train_raw %>%
-  select(YearsAtCompany,
-         YearsInCurrentRole,
-         YearsSinceLastPromotion,
-         YearsWithCurrManager,
-         NumCompaniesWorked) %>% pairs()
-```
-
-```{r crossplot_education}
-train_raw %>% 
-  select(Education,
-         JobLevel,
-         YearsAtCompany) %>% pairs()
-```
+## Histogram of each numeric variable, distinguished by Attrition
 
 ```{r}
-# histogram, distinguished by Attrition, and normalized
+# convenience function
 attr_hist <- function(varname)
 {
   # scale up by this amount to normalize the two histograms
@@ -86,113 +60,12 @@ attr_hist('TrainingTimesLastYear')
 attr_hist('WorkLifeBalance')
 attr_hist('YearsInCurrentRole')
 
+The numeric variables that seem most related to Attrition are ..
 
 ```
 
-```{r}
-# histogram of Monthly Income, broken down by each of the categorical varibles
-# BusinessTravel
-# Department
-# EducationField
-# Gender
-# JobRole
-# MaritalStatus
-train_raw %>% ggplot(mapping=aes(x=MonthlyIncome)) +
-  geom_histogram() + facet_wrap(~BusinessTravel)
-train_raw %>% ggplot(mapping=aes(x=MonthlyIncome)) +
-  geom_histogram() + facet_wrap(~Department)
+## Bar charts to show percentage attrition, separated by each categorical variable
 
-train_raw %>% ggplot(mapping=aes(x=MonthlyIncome)) +
-  geom_histogram() + facet_wrap(~EducationField)
-
-train_raw %>% ggplot(mapping=aes(x=MonthlyIncome)) +
-  geom_histogram() + facet_wrap(~Gender)
-
-train_raw %>% ggplot(mapping=aes(x=MonthlyIncome)) +
-  geom_histogram() + facet_wrap(~JobRole)
-
-train_raw %>% ggplot(mapping=aes(x=MonthlyIncome)) +
-  geom_histogram() + facet_wrap(~MaritalStatus)
-
-train_raw %>% ggplot(mapping=aes(x=MonthlyIncome)) +
-  geom_histogram() + facet_wrap(~OverTime)
-
-```
-
-```{r histogram_function}
-myqc <- function(varname,zb=0)
-{
-  index <- which(colnames(train_raw)==varname)
-  nbins <- 21
-  one_col <- train_raw %>% select(index)
-  colnames(one_col)  <- c('x')
-  p1 <- one_col %>% ggplot(aes(x=x)) + geom_histogram(bins=nbins) + ggtitle(varname)
-  p2 <- one_col %>% ggplot(aes(sample=x)) + stat_qq() + ggtitle(varname)
-  p3 <- one_col %>% mutate(new_value = log(x+zb)) %>%
-    ggplot(aes(x=new_value)) + geom_histogram(bins=nbins) + ggtitle(paste('log',varname))
-  p4 <- one_col %>% mutate(new_value = log(x+zb)) %>%
-    ggplot(aes(sample=new_value)) + stat_qq() + ggtitle(paste('log',varname))
-  p5 <- one_col %>% mutate(new_value = sqrt(x+zb)) %>%
-    ggplot(aes(x=new_value)) + geom_histogram(bins=nbins) + ggtitle(paste('sqrt',varname))
-  p6 <- one_col %>% mutate(new_value = sqrt(x+zb)) %>%
-    ggplot(aes(sample=new_value)) + stat_qq() + ggtitle(paste('sqrt',varname))
-  grid.arrange(p1,p2,p3,p4,p5,p6,nrow=3)
-}
-
-```
-
-```{r histogram_age}
-gc()
-myqc('Age')
-gc()
-```
-
-```{r}
-gc()
-myqc('DistanceFromHome')
-gc()
-myqc('MonthlyIncome')
-gc()
-myqc('YearsAtCompany',1)
-gc()
-myqc('YearsSinceLastPromotion',1)
-gc()
-myqc('YearsWithCurrManager',1)
-gc()
-myqc('WorkLifeBalance')
-gc()
-myqc('TotalWorkingYears',1)
-gc()
-myqc('PerformanceRating')
-gc()
-myqc('PercentSalaryHike')
-gc()
-myqc('JobLevel')
-gc()
-myqc('StockOptionLevel',1)
-gc()
-myqc('Education')
-gc()
-myqc('EnvironmentSatisfaction')
-gc()
-myqc('JobInvolvement')
-gc()
-myqc('JobSatisfaction')
-gc()
-myqc('NumCompaniesWorked',1)
-gc()
-myqc('RelationshipSatisfaction')
-gc()
-myqc('TrainingTimesLastYear',1)
-gc()
-myqc('WorkLifeBalance')
-gc()
-myqc('YearsInCurrentRole',1)
-gc()
-```
-
-
-# tabulate yes and no by categorical variables
 ```{r tab_1}
 # tabulate yes and no by categorical variables
 employee_data %>%

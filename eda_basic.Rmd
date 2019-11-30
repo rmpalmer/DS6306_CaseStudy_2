@@ -1,0 +1,41 @@
+---
+title: "Basic EDA"
+author: "R.M. Palmer"
+date: "11/15/2019"
+output: html_document
+---
+
+# Basic EDA
+
+```{r eda, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(gridExtra)
+library(grid)
+library(ggplot2)
+library(lattice)
+
+```
+
+```{r child = 'dataload.Rmd'}
+```
+
+## Check for NA values
+
+```{r sanity_check}
+# check for NA values
+train_raw %>% 
+  select_if(function(x) any(is.na(x))) %>% 
+  summarise_each(funs(sum(is.na(.)))) -> raw_NA
+```
+
+## Investigate Rate variables
+
+```{r crossplot_wage_rates}
+train_raw %>% 
+  select(MonthlyIncome,DailyRate,HourlyRate,MonthlyRate) %>% pairs()
+
+The rate variables do not seem correlated with Monthly Income.
+We will discard them and stick with only Monthly Income.
+
+
+```
