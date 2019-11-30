@@ -48,6 +48,46 @@ train_raw %>%
 ```
 
 ```{r}
+attr_hist <- function(varname)
+{
+  nbins <- 21
+  index_1 <- which(colnames(train_raw)==varname)
+  index_2 <- which(colnames(train_raw)=='Attrition')
+  two_cols <- train_raw %>% select(index_1,index_2)
+  colnames(two_cols)  <- c('x','Attrition'))
+  train_raw %>% ggplot(mapping=aes(x=x)) +
+      geom_histogram(bins=nbins) +
+      ggtitle(varname) +
+      facet_wrap(~Attrition)
+}
+
+# histogram of each of the numeric predictors, separated by Attrition
+attr_hist('Age')
+attr_hist('DistanceFromHome')
+attr_hist('MonthlyIncome')
+attr_hist('YearsAtCompany')
+attr_hist('YearsSinceLastPromotion')
+attr_hist('YearsWithCurrManager')
+attr_hist('WorkLifeBalance')
+attr_hist('TotalWorkingYears')
+attr_hist('PerformanceRating')
+attr_hist('PercentSalaryHike')
+attr_hist('JobLevel')
+attr_hist('StockOptionLevel')
+attr_hist('Education')
+attr_hist('EnvironmentSatisfaction')
+attr_hist('JobInvolvement')
+attr_hist('JobSatisfaction')
+attr_hist('NumCompaniesWorked')
+attr_hist('RelationshipSatisfaction')
+attr_hist('TrainingTimesLastYear')
+attr_hist('WorkLifeBalance')
+attr_hist('YearsInCurrentRole')
+
+
+```
+
+```{r}
 # histogram of Monthly Income, broken down by each of the 8 categorical varibles
 # BusinessTravel
 # Department
@@ -58,7 +98,6 @@ train_raw %>%
 # OverTime
 train_raw %>% ggplot(mapping=aes(x=MonthlyIncome)) +
   geom_histogram() + facet_wrap(~BusinessTravel)
-
 train_raw %>% ggplot(mapping=aes(x=MonthlyIncome)) +
   geom_histogram() + facet_wrap(~Department)
 
@@ -81,22 +120,6 @@ train_raw %>% ggplot(mapping=aes(x=MonthlyIncome)) +
 
 ## good idea to test statistical significance of the categorical variables
 
-```{r}
-## should any of the variables be transformed (logs?)
-train_raw %>% ggplot(aes(sample=Age)) + stat_qq() + ggtitle('Age')
-train_raw %>% ggplot(aes(sample=DistanceFromHome)) + stat_qq() + ggtitle('Distance From Home')
-train_raw %>% ggplot(aes(sample=MonthlyIncome)) + stat_qq() + ggtitle('MonthlyIncome')
-
-train_raw %>% ggplot(aes(x=Age)) + geom_histogram() + ggtitle('Age')
-train_raw %>% ggplot(aes(x=DistanceFromHome)) + geom_histogram() + ggtitle('DistanceFromHome')
-train_raw %>% ggplot(aes(x=MonthlyIncome)) + geom_histogram() + ggtitle('MonthlyIncome')
-
-```
-
-```{r}
-train_raw %>% mutate(logincome = log(MonthlyIncome)) %>% ggplot(aes(x=logincome)) + geom_histogram() + ggtitle('log income')
-train_raw %>% mutate(sqrtdist = sqrt(DistanceFromHome)) %>% ggplot(aes(x=sqrtdist)) + geom_histogram() + ggtitle('sqrt distance')
-```
 
 ```{r make_histograms}
 cuberoot <- function(arg)
