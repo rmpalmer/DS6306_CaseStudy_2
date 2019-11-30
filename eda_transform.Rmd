@@ -88,28 +88,4 @@ myqc('YearsInCurrentRole',1)
 gc()
 ```
 
-Some of the numeric variables do not appear normally distributed.  We will apply
-tranforms as follows:
-
-Age - None  
-Distance From Home - Square Root  
-Monthly Income - Log  
-YearsAtCompany - Log  
-YearsSinceLastPromotion - Log  
-YearsWithCurrentManager - Log  
-WorkLifeBalance - None  
-TotalWorkingYears - Squre Root  
-PerformanceRating - None  
-PercentSalaryHike - None  
-JobLevel - None  
-StockOptionLevel - None  
-Education - None  
-EnvironmentSatisfaction - None  
-JobInvolvement - None
-JobSatisfaction - None
-NumCompaniesWorked - None
-RelationshipSatisfaction - None
-TrainingTimesLastYear - None
-WorkLifeBalance - None
-YearsInCurrentRole - None
 
