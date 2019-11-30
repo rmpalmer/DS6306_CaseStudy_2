@@ -121,20 +121,7 @@ train_raw %>% ggplot(mapping=aes(x=MonthlyIncome)) +
 
 ## good idea to test statistical significance of the categorical variables
 
-
-```{r make_histograms}
-cuberoot <- function(arg)
-{
-  return(arg^(1/3))
-}
-mylog <- function(arg)
-{
-  return (log(1+arg))
-}
-noop <- function(arg)
-{
-  return(arg)
-}
+```{r histogram_function}
 myqc <- function(varname,zb=0)
 {
   index <- which(colnames(train_raw)==varname)
@@ -154,32 +141,42 @@ myqc <- function(varname,zb=0)
   grid.arrange(p1,p2,p3,p4,p5,p6,nrow=3)
 }
 
+```
+
+```{r histogram_age}
+gc()
 myqc('Age')
-myqc('DistanceFromHome')
-myqc('MonthlyIncome')
-myqc('YearsAtCompany',1)
-myqc('YearsSinceLastPromotion',1)
-myqc('YearsWithCurrManager',1)
-myqc('WorkLifeBalance')
-myqc('TotalWorkingYears',1)
-myqc('PerformanceRating')
-myqc('PercentSalaryHike')
-myqc('JobLevel')
-myqc('StockOptionLevel',1)
-myqc('Education')
-myqc('EnvironmentSatisfaction')
-myqc('JobInvolvement')
-myqc('JobSatisfaction')
-myqc('NumCompaniesWorked',1)
-myqc('RelationshipSatisfaction')
-myqc('TrainingTimesLastYear',1)
-myqc('WorkLifeBalance')
-myqc('YearsInCurrentRole',1)
+gc()
+```
+
+```{r make_histograms}
+
+#myqc('DistanceFromHome')
+#myqc('MonthlyIncome')
+#myqc('YearsAtCompany',1)
+#myqc('YearsSinceLastPromotion',1)
+#myqc('YearsWithCurrManager',1)
+#myqc('WorkLifeBalance')
+#myqc('TotalWorkingYears',1)
+#myqc('PerformanceRating')
+#myqc('PercentSalaryHike')
+#myqc('JobLevel')
+#myqc('StockOptionLevel',1)
+#myqc('Education')
+#myqc('EnvironmentSatisfaction')
+#myqc('JobInvolvement')
+#myqc('JobSatisfaction')
+#myqc('NumCompaniesWorked',1)
+#myqc('RelationshipSatisfaction')
+#myqc('TrainingTimesLastYear',1)
+#myqc('WorkLifeBalance')
+#myqc('YearsInCurrentRole',1)
+gc()
 ```
 
 
 # tabulate yes and no by categorical variables
-```{r}
+```{r tab_1}
 # tabulate yes and no by categorical variables
 employee_data %>%
   group_by(EducationField,Attrition) %>%
@@ -191,7 +188,7 @@ employee_data %>%
   ggtitle('Percent Attrition by EducationField')
 ```
 
-```{r}
+```{r tab_2}
 # tabulate yes and no by categorical variables
 employee_data %>%
   group_by(BusinessTravel,Attrition) %>%
@@ -203,7 +200,7 @@ employee_data %>%
   ggtitle('Percent Attrition by BusinessTravel')
 ```
 
-```{r}
+```{r tab_3}
 # tabulate yes and no by categorical variables
 employee_data %>%
   group_by(Department,Attrition) %>%
@@ -215,7 +212,7 @@ employee_data %>%
   ggtitle('Percent Attrition by Department')
 ```
 
-```{r}
+```{r tab_4}
 # tabulate yes and no by categorical variables
 employee_data %>%
   group_by(Gender,Attrition) %>%
@@ -227,7 +224,7 @@ employee_data %>%
   ggtitle('Percent Attrition by Gender')
 ```
 
-```{r}
+```{r tab_5}
 # tabulate yes and no by categorical variables
 employee_data %>%
   group_by(JobRole,Attrition) %>%
@@ -239,7 +236,7 @@ employee_data %>%
   ggtitle('Percent Attrition by JobRole')
 ```
 
-```{r}
+```{r tab_6}
 # tabulate yes and no by categorical variables
 employee_data %>%
   group_by(MaritalStatus,Attrition) %>%
