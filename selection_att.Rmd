@@ -65,7 +65,7 @@ anova(stepwise_nb)
 ```
 
 ```{r select_knn_predictors}
-fit_knn <- lm(att_f_all, data=employee_data)
+fit_knn <- lm(att_f_num, data=employee_data)
 fit_knn$call
 anova(fit_knn)
 

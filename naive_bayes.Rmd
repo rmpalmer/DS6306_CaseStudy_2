@@ -39,7 +39,7 @@ positive_value <- 'Yes'
 set.seed(42)
 ```
 
-## first try using all numeric variables
+## First try all numeric variables
 
 ```{r do_nb_1}
 # 
