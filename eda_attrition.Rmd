@@ -16,9 +16,6 @@ library(lattice)
 
 # EDA for predicting attrition
 
-```{r child = 'dataload.Rmd'}
-```
-
 ## Histogram of each numeric variable, distinguished by Attrition
 
 ```{r}
@@ -60,9 +57,9 @@ attr_hist('TrainingTimesLastYear')
 attr_hist('WorkLifeBalance')
 attr_hist('YearsInCurrentRole')
 
+```
 The numeric variables that seem most related to Attrition are ..
 
-```
 
 ## Bar charts to show percentage attrition, separated by each categorical variable
 

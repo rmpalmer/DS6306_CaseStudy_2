@@ -23,6 +23,7 @@ library(lattice)
 train_raw %>% 
   select_if(function(x) any(is.na(x))) %>% 
   summarise_each(funs(sum(is.na(.)))) -> raw_NA
+raw_NA
 ```
 
 ## Investigate Rate variables

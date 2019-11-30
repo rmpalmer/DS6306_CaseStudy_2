@@ -1,11 +1,11 @@
 ---
-title: "DataLoad"
+title: "Transform"
 author: "R.M. Palmer"
 date: "11/15/2019"
 output: html_document
 ---
 
-```{r dataload, include=TRUE}
+```{r tranform, include=TRUE}
 knitr::opts_chunk$set(echo = FALSE)
 library(tidyverse)
 ```
@@ -87,7 +87,7 @@ my_transform <- function(raw_df)
        t_WorkLifeBalance = WorkLifeBalance,
        t_YearsAtCompany = log(YearsAtCompany+1),
        t_YearsInCurrentRole = log(YearsInCurrentRole+1),
-       t_YearsSinceLastPromotion = log(YearsSinceLastPromotion),
+       t_YearsSinceLastPromotion = log(YearsSinceLastPromotion+1),
        t_YearsWithCurrManager = log(YearsWithCurrManager+1)) %>%
     mutate(z_DistanceFromHome = scale(t_DistanceFromHome),
          z_Education = scale(t_Education),
@@ -118,6 +118,8 @@ my_transform <- function(raw_df)
 }
 
 # call the function
+train_raw <- read.csv('CaseStudy2-data.csv') 
+
 employee_data <- my_transform(train_raw)
 
 
@@ -160,3 +162,12 @@ employee_data <- my_transform(train_raw)
 # HourlyRate
 
 ```
+
+# check for NA values after transform
+```{r}
+employee_data %>% 
+  select_if(function(x) any(is.na(x))) %>% 
+  summarise_each(funs(sum(is.na(.)))) -> transform_NA
+transform_NA
+```
+

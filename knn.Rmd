@@ -5,12 +5,13 @@ date: "11/18/2019"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+```{r setup_knn, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r child = 'dataload.Rmd'}
-```
+# Predict Attrition with K-nearest-neighbor algorithm.
+
+## Define functions and select predictors
 
 ```{r}
 library(caret)
@@ -21,7 +22,7 @@ library(class)
 # scale all numeric variables to normalize
 # then select only the variable to be predicted and the normalized values
 for_knn <- employee_data %>%
-  select(Attrition,
+  dplyr::select(Attrition,
          z_DistanceFromHome,
          z_Education,
          z_EnvironmentSatisfaction,
@@ -55,16 +56,7 @@ cols_for_knn <- c("z_DistanceFromHome",
          "z_YearsInCurrentRole",
          "z_YearsSinceLastPromotion")
 
-# omit because anova says not important
-# z_YearsSinceLastPromotion
-# education
-# trainingTimesLastYear
-# RelationshipSatisfaction
-# PerformanceRating
-# PercentSalaryHike
-# NumCompaniesWorked
-# ...
-         
+
 # adjust the knn results by known probabilities
 knn_adjust <- function(orig_factor, k, num_no=1, num_yes=1)
 {
@@ -97,11 +89,13 @@ knn_adjust <- function(orig_factor, k, num_no=1, num_yes=1)
          
 ```
 
+## What is the expected outcome?
+
 ```{r knn_start}
 summary(for_knn$Attrition)
 ```
 
-```{r nb_sanity}
+```{r knn_sanity}
 truth <- dplyr::count(employee_data,vars=Attrition)
 truth.yes <- as.numeric(truth[2,2])
 truth.no  <- as.numeric(truth[1,2])
@@ -113,15 +107,20 @@ true_no_perc  <- round(100*truth.no/truth.nobs)
 True percentage of "yes" values is `r true_yes_perc`  
 True percentage of "no"  values is `r true_no_perc` 
 
+## Set parameters for KNN
+
 ```{r knn_parms}
 set.seed(42)
 train_frac <- 0.7
-# numks <- 50
 numks <- 50
 # knn_trials <- 250
 knn_trials <- 100
 positive_value <- 'Yes'
 ```
+
+## Select K
+
+run KNN with different values of K to select appropriate neighborhood size.
 
 ```{r do_knn}
 # look for the best value of k
@@ -195,14 +194,16 @@ chosen_sens <- round(100*combined_stats$sensitivity[chosen_k])
 chosen_spec <- round(100*combined_stats$specificity[chosen_k])
 ```
 
+## Select K
+
 max accuracy is at k = `r max_acc_k`.  
 
-we choose `r chosen_k` to go forward in constructing a classifier, since
-although performance seems to increase, the number of predicted Yes and No
-responses continues to get further from the truth.  The classifier seems to 
-be moving more and more in the direction of calling everything a No.
+We choose `r chosen_k` to go forward in constructing a classifier, since
+this provides the highest accuracy.
 
 That value of k, on our train and test split, gives and average accuracy of `r chosen_acc`, an average sensitivity of `r chosen_sens` and a specificity of `r chosen_spec`.
+
+## Repeat classificaiton on entire dataset
 
 ```{r knn_eval}
 # make a new classifier using all the data
@@ -230,6 +231,11 @@ KNN accuracy turns out to be `r format(100*knn_acc,digits=2)` %.
 KNN sensitivity is `r format(100*knn_sens,digits=2)` %.
 
 KNN specificity is `r format(100*knn_spec,digits=2)` %.
+
+## Predict with KNN
+
+Since the KNN classifier does a better job of predicting Attrition, we will
+use it for making predictions on the unlabeled data for submission.
 
 ```{r knn_pred}
 # read in the blind test dataset

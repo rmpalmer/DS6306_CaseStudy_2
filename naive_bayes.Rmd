@@ -5,17 +5,18 @@ date: "11/18/2019"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
+```{r setup_nb, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r child = 'dataload.Rmd'}
-```
+# Predict Attrition with Naive Bayes classifier
 
 ```{r}
 library(e1071)
 library(caret)
 ```
+
+## first determine the true percentage of Yes 
 
 ```{r nb_sanity}
 truth <- dplyr::count(employee_data,vars=Attrition)
@@ -30,7 +31,18 @@ True percentage of "yes" values is `r true_yes_perc`
 True percentage of "no"  values is `r true_no_perc` 
 
 ```{r nb_parameters}
-# parameters
+nb_laplace <- 1
+nb_trials <- 100
+train_frac <- 0.7
+positive_value <- 'Yes'
+# for repeatability
+set.seed(42)
+```
+
+## first try using all numeric variables
+
+```{r do_nb_1}
+# 
 nb_predictors <- c("Age",
                    "Education",
                    "BusinessTravel",
@@ -50,30 +62,7 @@ nb_predictors <- c("Age",
                    "YearsSinceLastPromotion",
                    "YearsWithCurrManager"
                    )
-nb_predictors_2 <- c("MonthlyIncome",
-                     "Department",
-                     "EducationField",
-                     "Gender",
-         "DistanceFromHome",
-         "EnvironmentSatisfaction",
-         "JobInvolvement",
-         "JobLevel",
-         "JobSatisfaction",
-         "StockOptionLevel",
-         "TotalWorkingYears",
-         "WorkLifeBalance",
-         "YearsAtCompany",
-         "YearsInCurrentRole",
-         "YearsWithCurrManager")
-nb_laplace <- 1
-nb_trials <- 100
-train_frac <- 0.7
-positive_value <- 'Yes'
-# for repeatability
-set.seed(42)
-```
 
-```{r do_nb}
 # do the work
 acc_nb <- matrix(nrow=nb_trials, ncol = 5)
 nobs <- length(employee_data$Attrition)
@@ -118,8 +107,26 @@ Average percentage of "yes" predictions is `r nb_yes_perc`
 
 Average percentage of "no"  predictions is `r nb_no_perc`  
 
+## Subset the variables and try again
 
-```{r nb_alternate}
+From histograms in earlier EDA, it appears that these variables are most important:
+
+- MonthlyIncome
+- YearsAtCompany
+- WorkLifeBalance
+- TotalWorkingYears
+- JobLevel
+- StockOptionLevel
+
+
+```{r do_nb_2}
+nb_predictors_2 <- c("MonthlyIncome",
+         "JobLevel",
+         "StockOptionLevel",
+         "TotalWorkingYears",
+         "WorkLifeBalance",
+         "YearsAtCompany")
+
 # do the work
 acc_nb <- matrix(nrow=nb_trials, ncol = 5)
 nobs <- length(employee_data$Attrition)
@@ -153,6 +160,8 @@ nb_no_perc  <- round(100*mean_stats[5])
 
 ```
 
+Using a subset of predictors ()
+
 Averaging over `r nb_trials` trials, the Naive Bayes classifier has
 
 accuracy of `r format(100*nb_acc,digits=2)` %
@@ -165,4 +174,4 @@ Average percentage of "yes" predictions is `r nb_yes_perc`
 
 Average percentage of "no"  predictions is `r nb_no_perc`  
 
-
+## Naive Bayes does a moderately accurate job, but sensitivity is poor.
