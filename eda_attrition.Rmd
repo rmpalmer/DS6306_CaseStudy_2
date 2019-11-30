@@ -5,7 +5,7 @@ date: "11/15/2019"
 output: html_document
 ---
 
-```{r eda, include=FALSE}
+```{r eda_attrition, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(gridExtra)
 library(grid)

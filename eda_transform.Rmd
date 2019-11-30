@@ -5,7 +5,7 @@ date: "11/15/2019"
 output: html_document
 ---
 
-```{r eda, include=FALSE}
+```{r eda_transform, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(gridExtra)
 library(grid)
@@ -16,9 +16,6 @@ library(lattice)
 
 # EDA to consider data tranformations
 
-```{r child = 'dataload.Rmd'}
-```
-
 ## Make histogram and QQ plot of each numeric variable with log and sqrt tranformations
 
 ### Note that when the minimum value of a variable is 0, add 1 to make enable log transform
@@ -28,7 +25,7 @@ myqc <- function(varname,zb=0)
 {
   index <- which(colnames(train_raw)==varname)
   nbins <- 21
-  one_col <- train_raw %>% select(index)
+  one_col <- train_raw %>% dplyr::select(index)
   colnames(one_col)  <- c('x')
   p1 <- one_col %>% ggplot(aes(x=x)) + geom_histogram(bins=nbins) + ggtitle(varname)
   p2 <- one_col %>% ggplot(aes(sample=x)) + stat_qq() + ggtitle(varname)
@@ -91,4 +88,28 @@ myqc('YearsInCurrentRole',1)
 gc()
 ```
 
+Some of the numeric variables do not appear normally distributed.  We will apply
+tranforms as follows:
+
+Age - None  
+Distance From Home - Square Root  
+Monthly Income - Log  
+YearsAtCompany - Log  
+YearsSinceLastPromotion - Log  
+YearsWithCurrentManager - Log  
+WorkLifeBalance - None  
+TotalWorkingYears - Squre Root  
+PerformanceRating - None  
+PercentSalaryHike - None  
+JobLevel - None  
+StockOptionLevel - None  
+Education - None  
+EnvironmentSatisfaction - None  
+JobInvolvement - None
+JobSatisfaction - None
+NumCompaniesWorked - None
+RelationshipSatisfaction - None
+TrainingTimesLastYear - None
+WorkLifeBalance - None
+YearsInCurrentRole - None
 
