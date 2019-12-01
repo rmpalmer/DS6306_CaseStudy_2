@@ -242,7 +242,7 @@ predicted_attrition <- as.factor(knn(for_knn[,cols_for_knn],
                            for_knn$Attrition,k=chosen_k))
 levels(predicted_attrition) <- c("No","Yes")
 summary(predicted_attrition)
-for_submission <- cbind(blind_test$ID,as.factor(predicted_attrition))
+for_submission <- cbind(blind_test$ID,as.character(predicted_attrition))
 colnames(for_submission) <- c("ID","Attrition")
 write.csv(for_submission,file="Case2PredictionsPalmerAttrition.csv",row.names=FALSE)
 ```
