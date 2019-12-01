@@ -1,0 +1,88 @@
+---
+title: "Income Model Selection"
+author: "R.M. Palmer"
+date: "11/18/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(relaimpo)
+library(MASS)
+```
+
+```{r mi_common}
+numeric_predictors <- c("Age",
+"t_DistanceFromHome",
+"t_Education",
+"t_EnvironmentSatisfaction",
+"t_JobInvolvement",
+"t_JobLevel",
+"t_JobSatisfaction",
+"t_NumCompaniesWorked",
+"t_PercentSalaryHike",
+"t_PerformanceRating",
+"t_RelationshipSatisfaction",
+"t_StockOptionLevel",
+"t_TotalWorkingYears",
+"t_TrainingTimesLastYear",
+"t_WorkLifeBalance",
+"t_YearsAtCompany",
+"t_YearsInCurrentRole",
+"t_YearsSinceLastPromotion",
+"t_YearsWithCurrManager")
+
+factor_predictors <- c("BusinessTravel",
+"Department",
+"EducationField",
+"Gender",
+"JobRole",
+"MaritalStatus")
+
+all_predictors <- c(numeric_predictors, factor_predictors)
+
+mi_f_all <- as.formula(paste("t_MonthlyIncome ~ ",
+                             paste(numeric_predictors,collapse="+"),
+                             " * ",
+                             paste(factor_predictors,collapse="*")
+                             ))
+mi_f_num <- as.formula(paste("MonthlyIncome ~ ",paste(numeric_predictors,collapse="+")))
+mi_f_fac <- as.formula(paste("MonthlyIncome ~ ",paste(factor_predictors,collapse="+")))
+
+```
+
+```{r stepwise_mi_fac}
+mi_fit_fac <- lm(mi_f_fac, data=employee_data)
+sw_fit_fac <- stepAIC(mi_fit_fac,direction="both",trace=0)
+sw_fit_fac$call
+anova(sw_fit_fac)
+gc()
+```
+
+```{r stepwise_mi_num}
+mi_fit_num <- lm(mi_f_num, data=employee_data)
+sw_fit_num <- stepAIC(mi_fit_num,direction="both",trace=0)
+sw_fit_num$call
+anova(sw_fit_num)
+gc()
+```
+
+```{r stepwise_mi_all}
+mi_fit_all <- lm(mi_f_all, data=employee_data)
+sw_fit_all <- stepAIC(mi_fit_all,direction="both",trace=0)
+sw_fit_all$call
+anova(sw_fit_all)
+gc()
+```
+
+
+```{r relimp_mi}
+mi_fit_relimp <- calc.relimp(mi_fit,type="last")
+mi_fit_ranking <- sort(mi_fit_relimp$last.rank)
+mi_fit_top3 <- mi_fit_ranking[1:3]
+```
+
+From the relaimpo package,  
+The most important predictors for Monthly Income are `r names(mi_fit_top3)`  
+The complete list is `r names(att_fit_ranking)`
+
