@@ -22,11 +22,10 @@ library(lattice)
 # convenience function
 attr_hist <- function(varname)
 {
-  # scale up by this amount to normalize the two histograms
   nbins <- 21
-  index_1 <- which(colnames(train_raw)==varname)
-  index_2 <- which(colnames(train_raw)=='Attrition')
-  two_cols <- train_raw %>% dplyr::select(index_1,index_2)
+  index_1 <- which(colnames(employee_data)==varname)
+  index_2 <- which(colnames(employee_data)=='Attrition')
+  two_cols <- employee_data %>% dplyr::select(index_1,index_2)
   colnames(two_cols)  <- c('x','Attrition')
   two_cols %>% ggplot(mapping=aes(x=x,y=..density..)) +
       geom_histogram(bins=nbins) +
@@ -56,6 +55,8 @@ attr_hist('RelationshipSatisfaction')
 attr_hist('TrainingTimesLastYear')
 attr_hist('WorkLifeBalance')
 attr_hist('YearsInCurrentRole')
+attr_hist('numeric_MaritalStatus')
+attr_hist('numeric_OverTime')
 
 ```
 The numeric variables that seem most related to Attrition are ..
@@ -133,5 +134,17 @@ employee_data %>%
   ggplot(aes(x=MaritalStatus,y=perc)) + 
   geom_bar(stat="identity") +
   ggtitle('Percent Attrition by MaritalStatus')
+```
+
+```{r tab_7}
+# tabulate yes and no by categorical variables
+employee_data %>%
+  group_by(OverTime,Attrition) %>%
+  summarise(count=n()) %>%
+  spread(Attrition,count) %>% 
+  mutate(perc=Yes/No) %>% 
+  ggplot(aes(x=OverTime,y=perc)) + 
+  geom_bar(stat="identity") +
+  ggtitle('Percent Attrition by OverTime')
 ```
 

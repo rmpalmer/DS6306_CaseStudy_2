@@ -16,9 +16,6 @@ library(glmnet)
 library(ggplot2)
 ```
 
-```{r child = 'dataload.Rmd'}
-```
-
 ```{r lm_common}
 all_numeric <- c("Age",
 "t_DistanceFromHome",

@@ -71,6 +71,8 @@ my_transform <- function(raw_df)
                                -MonthlyRate,
                                -HourlyRate,
                                -StandardHours) %>%
+    mutate(numeric_OverTime = as.integer(OverTime),
+        numeric_MaritalStatus = as.integer(MaritalStatus)) %>%
     mutate(t_DistanceFromHome = sqrt(DistanceFromHome),
        t_Education = Education,
        t_EnvironmentSatisfaction = EnvironmentSatisfaction,
@@ -106,7 +108,9 @@ my_transform <- function(raw_df)
          z_YearsAtCompany = scale(t_YearsAtCompany),
          z_YearsInCurrentRole = scale(t_YearsInCurrentRole),
          z_YearsSinceLastPromotion = scale(t_YearsSinceLastPromotion),
-         z_YearsWithCurrManager = scale(t_YearsWithCurrManager))
+         z_YearsWithCurrManager = scale(t_YearsWithCurrManager),
+         z_MaritalStatus = scale(numeric_MaritalStatus),
+         z_OverTime = scale(numeric_OverTime))
   
   if ("MonthlyIncome" %in% colnames(raw_df)) {
     xformed$t_MonthlyIncome <- log(raw_df$MonthlyIncome)

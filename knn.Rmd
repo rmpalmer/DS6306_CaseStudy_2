@@ -40,16 +40,19 @@ for_knn <- employee_data %>%
          z_YearsAtCompany,
          z_YearsInCurrentRole,
          z_YearsSinceLastPromotion,
-         z_YearsWithCurrManager)
+         z_YearsWithCurrManager,
+         z_OverTime,
+         z_MaritalStatus)
 
 cols_for_knn <- c("z_DistanceFromHome",
-"z_EnvironmentSatisfaction",
-"z_JobInvolvement",
-"z_JobSatisfaction",
-"z_StockOptionLevel",
-"z_TotalWorkingYears",
-"z_WorkLifeBalance",
-"z_YearsSinceLastPromotion")
+                   "z_EnvironmentSatisfaction",
+                   "z_NumCompaniesWorked",
+                   "z_TotalWorkingYears",
+                   "z_TrainingTimesLastYear",
+                   "z_WorkLifeBalance",
+                   "z_YearsSinceLastPromotion",
+                   "z_JobInvolvement",
+                   "z_JobSatisfaction")
 
 # adjust the knn results by known probabilities
 knn_adjust <- function(orig_factor, k, num_no=1, num_yes=1)
@@ -106,10 +109,12 @@ True percentage of "no"  values is `r true_no_perc`
 ```{r knn_parms}
 set.seed(42)
 train_frac <- 0.7
-numks <- 50
-# knn_trials <- 250
+numks <- 30
+knn_trials <- 50
 knn_trials <- 100
 positive_value <- 'Yes'
+max_acc_k = 10
+chosen_k = 5
 ```
 
 ## Select K
@@ -161,10 +166,11 @@ for (i in 1:numks)
   knn_stats[i,5] = colMeans(pcyes,na.rm = TRUE)
   knn_stats[i,6] = colMeans(pcno,na.rm = TRUE)
 }
-
+cat('rmp debug')
+gc()
 ```
 
-```{r plot_k_stats}
+```{r plot_k_stats,eval=FALSE}
 stats_frame <- data.frame(knn_stats)
 colnames(stats_frame) <- c("k","accuracy","sensitivity","specificity","Perc_Yes","Perc_No")
 for_plot <- reshape2::melt(stats_frame,id.var='k')
@@ -175,13 +181,13 @@ for_plot %>% ggplot(aes(x=k,y=value,col=variable)) +
   ggtitle('Performance of Classifier by K')
 ```
 
-```{r choose_k}
+```{r choose_k,eval=FALSE}
 combined_stats <- stats_frame %>% 
   mutate(sums = accuracy + sensitivity + specificity) 
 
 max_acc_k <- which.max(knn_stats[,2])
 
-chosen_k = max_acc_k
+chosen_k = 5
 
 chosen_acc  <- round(100*combined_stats$accuracy[chosen_k])
 chosen_sens <- round(100*combined_stats$sensitivity[chosen_k])
@@ -191,11 +197,8 @@ chosen_spec <- round(100*combined_stats$specificity[chosen_k])
 ## Select K
 
 max accuracy is at k = `r max_acc_k`.  
-
-We choose `r chosen_k` to go forward in constructing a classifier, since
-this provides the highest accuracy.
-
-That value of k, on our train and test split, gives and average accuracy of `r chosen_acc`, an average sensitivity of `r chosen_sens` and a specificity of `r chosen_spec`.
+Although k of `r max_acc_k` provides the highest accuracy,
+we choose k of `r chosen_k`  as a compromise, since higher values of k are losing specificity.
 
 ## Repeat classificaiton on entire dataset
 
@@ -231,7 +234,7 @@ KNN specificity is `r format(100*knn_spec,digits=2)` %.
 Since the KNN classifier does a better job of predicting Attrition, we will
 use it for making predictions on the unlabeled data for submission.
 
-```{r knn_pred}
+```{r knn_pred, eval=TRUE}
 # read in the blind test dataset
 
 blind_raw <- read.csv('CaseStudy2CompSetNoAttrition.csv')

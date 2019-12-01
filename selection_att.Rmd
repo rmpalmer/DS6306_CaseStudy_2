@@ -1,5 +1,5 @@
 ---
-title: "Model Selection"
+title: "Attrition Model Selection"
 author: "R.M. Palmer"
 date: "11/18/2019"
 output: html_document
@@ -33,7 +33,9 @@ numeric_predictors <- c("Age",
 "t_YearsAtCompany",
 "t_YearsInCurrentRole",
 "t_YearsSinceLastPromotion",
-"t_YearsWithCurrManager")
+"t_YearsWithCurrManager",
+"numeric_OverTime",
+"numeric_MaritalStatus")
 
 factor_predictors <- c("BusinessTravel",
 "Department",
@@ -59,7 +61,7 @@ fit_nb <- lm(att_f_all, data=employee_data)
 fit_nb$call
 anova(fit_nb)
 
-stepwise_nb <- stepAIC(fit_nb,direction="both")
+stepwise_nb <- stepAIC(fit_nb,direction="both",trace=0)
 stepwise_nb$call
 anova(stepwise_nb)
 ```
@@ -69,7 +71,7 @@ fit_knn <- lm(att_f_num, data=employee_data)
 fit_knn$call
 anova(fit_knn)
 
-stepwise_knn <- stepAIC(fit_knn,direction="both")
+stepwise_knn <- stepAIC(fit_knn,direction="both",trace=0)
 stepwise_knn$call
 anova(stepwise_knn)
 ```

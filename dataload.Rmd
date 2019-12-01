@@ -13,7 +13,10 @@ library(tidyverse)
 
 ```{r import_csv}
 # import raw data
-train_raw <- read.csv('CaseStudy2-data.csv') 
+# want to have these as numeric for EDA
+train_raw <- read.csv('CaseStudy2-data.csv') %>% 
+  mutate(numeric_OverTime = as.integer(OverTime),
+        numeric_MaritalStatus = as.integer(MaritalStatus))
 
 
 # these are constant:

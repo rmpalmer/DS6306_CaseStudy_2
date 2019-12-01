@@ -40,6 +40,7 @@ factor_predictors <- c("BusinessTravel",
 "EducationField",
 "Gender",
 "JobRole",
+"OverTime",
 "MaritalStatus")
 
 mi_f_all <- as.formula(paste("t_MonthlyIncome ~ ",

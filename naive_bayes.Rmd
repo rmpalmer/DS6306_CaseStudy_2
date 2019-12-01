@@ -53,6 +53,7 @@ nb_predictors <- c("Age",
                    "MonthlyIncome",
                    "NumCompaniesWorked",
                    "MaritalStatus",
+                   "OverTime",
                    "PercentSalaryHike",
                    "PerformanceRating",
                    "TotalWorkingYears",
@@ -123,14 +124,17 @@ From stepwise variable selection, these are most important (in order)
 
 
 ```{r do_nb_2}
-nb_predictors_2 <- c("BusinessTravel",
-                   "DistanceFromHome",
+# predictors from stepwise AIC
+nb_predictors_2 <- c("DistanceFromHome",
                    "EnvironmentSatisfaction",
-                   "MaritalStatus",
+                   "NumCompaniesWorked",
+                   "OverTime",
                    "TotalWorkingYears",
+                   "TrainingTimesLastYear",
                    "WorkLifeBalance",
                    "YearsSinceLastPromotion",
                    "JobInvolvement",
+                   "JobSatisfaction",
                    "MaritalStatus"
                    )
                    

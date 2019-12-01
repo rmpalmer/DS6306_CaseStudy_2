@@ -41,13 +41,9 @@ factor_predictors <- c("BusinessTravel",
 
 all_predictors <- c(numeric_predictors, factor_predictors)
 
-mi_f_all <- as.formula(paste("t_MonthlyIncome ~ ",
-                             paste(numeric_predictors,collapse="+"),
-                             " * ",
-                             paste(factor_predictors,collapse="*")
-                             ))
-mi_f_num <- as.formula(paste("MonthlyIncome ~ ",paste(numeric_predictors,collapse="+")))
-mi_f_fac <- as.formula(paste("MonthlyIncome ~ ",paste(factor_predictors,collapse="+")))
+mi_f_all <- as.formula(paste("t_MonthlyIncome ~ ",paste(all_predictors,collapse="+")))
+mi_f_num <- as.formula(paste("t_MonthlyIncome ~ ",paste(numeric_predictors,collapse="+")))
+mi_f_fac <- as.formula(paste("t_MonthlyIncome ~ ",paste(factor_predictors,collapse="+")))
 
 ```
 
@@ -77,12 +73,12 @@ gc()
 
 
 ```{r relimp_mi}
-mi_fit_relimp <- calc.relimp(mi_fit,type="last")
+mi_fit_relimp <- calc.relimp(mi_fit_all,type="last")
 mi_fit_ranking <- sort(mi_fit_relimp$last.rank)
 mi_fit_top3 <- mi_fit_ranking[1:3]
 ```
 
 From the relaimpo package,  
 The most important predictors for Monthly Income are `r names(mi_fit_top3)`  
-The complete list is `r names(att_fit_ranking)`
+The complete list is `r names(mi_fit_ranking)`
 
