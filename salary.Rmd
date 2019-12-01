@@ -35,7 +35,9 @@ all_numeric <- c("Age",
 "t_YearsAtCompany",
 "t_YearsInCurrentRole",
 "t_YearsSinceLastPromotion",
-"t_YearsWithCurrManager")
+"t_YearsWithCurrManager",
+"numeric_MaritalStatus",
+"numeric_OverTime")
 
 all_factors <- c("BusinessTravel",
 "Department",
@@ -56,6 +58,7 @@ stepwise_numeric <- c("t_DistanceFromHome",
 "t_YearsSinceLastPromotion",
 "t_YearsWithCurrManager")
 
+
 subjective_factors <- c("Gender",
 "JobRole",
 "EducationField")
@@ -66,22 +69,16 @@ subjective_numeric <- c("t_JobLevel",
 "t_RelationshipSatisfaction",
 "t_StockOptionLevel",
 "t_YearsAtCompany")
-                           
+                      
 
 mi_f_stepwise   <- as.formula(paste("t_MonthlyIncome ~ ",
                              paste(stepwise_numeric,collapse="+"),
-                             " + ",
-                             paste(stepwise_factors,collapse="+")
                              ))
 mi_f_creosote   <- as.formula(paste("t_MonthlyIncome ~ ",
                              paste(all_numeric,collapse="+"),
-                             " + ",
-                             paste(all_factors,collapse="+")
                              ))
 mi_f_subjective <- as.formula(paste("t_MonthlyIncome ~ ",
                              paste(subjective_numeric,collapse="+"),
-                             " + ",
-                             paste(subjective_factors,collapse="+")
                              ))
 
 train_control <- trainControl(method="LOOCV")
