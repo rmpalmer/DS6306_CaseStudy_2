@@ -72,14 +72,14 @@ subjective_numeric <- c("t_JobLevel",
                       
 
 mi_f_stepwise   <- as.formula(paste("t_MonthlyIncome ~ ",
-                             paste(stepwise_numeric,collapse="+"),
-                             ))
+                             paste(stepwise_numeric,collapse="+")))
+                             
 mi_f_creosote   <- as.formula(paste("t_MonthlyIncome ~ ",
-                             paste(all_numeric,collapse="+"),
-                             ))
+                             paste(all_numeric,collapse="+")))
+                             
 mi_f_subjective <- as.formula(paste("t_MonthlyIncome ~ ",
-                             paste(subjective_numeric,collapse="+"),
-                             ))
+                             paste(subjective_numeric,collapse="+")))
+                             
 
 train_control <- trainControl(method="LOOCV")
 ```
@@ -180,8 +180,8 @@ gc()
 ```{r predict_known}
 reprise_raw <- read.csv('CaseStudy2-data.csv')
 reprise_test <- my_transform(reprise_raw)
-subjective_sanity <- predict(subjective_model, newdata = reprise_test)
-stepwise_sanity   <- predict(stepwise_model, newdata = reprise_test)
+subjective_sanity <- exp(predict(subjective_model, newdata = reprise_test))
+stepwise_sanity   <- exp(predict(stepwise_model, newdata = reprise_test))
 ```
 
 
@@ -190,7 +190,7 @@ stepwise_sanity   <- predict(stepwise_model, newdata = reprise_test)
 
 blind_raw <- read.csv('CaseStudy2CompSetNoSalary.csv')
 blind_test <- my_transform(blind_raw)
-predicted_salary <- predict(stepwise_model,newdata=blind_test)
+predicted_salary <- exp(predict(stepwise_model,newdata=blind_test))
 
 for_submission <- cbind(blind_test$ID,predicted_salary)
 colnames(for_submission) <- c("ID","Salary")

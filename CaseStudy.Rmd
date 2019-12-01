@@ -1,0 +1,46 @@
+---
+title: "Employment Case Study"
+author: "R.M. Palmer"
+date: "11/30/2019"
+output: html_document
+---
+
+```{r naive_bayes, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Employement Case Study 
+
+## Richard M. Palmer
+
+## DS 6306 - Section 408 - Fall 2019 - Bivin Sadler
+
+```{r child = 'dataload.Rmd'}
+```
+
+```{r child = 'eda_basic.Rmd', eval=TRUE}
+```
+
+```{r child = 'eda_transform.Rmd', eval=TRUE}
+```
+
+```{r child = 'transform.Rmd',eval=TRUE}
+```
+
+```{r child = 'eda_attrition.Rmd', eval=TRUE}
+```
+
+```{r child = 'selection_att.Rmd', eval=TRUE}
+```
+
+```{r child = 'naive_bayes.Rmd',eval=TRUE}
+```
+
+```{r child = 'knn.Rmd',eval=TRUE}
+```
+
+```{r child = 'salary.Rmd',eval=TRUE}
+```
+
+
+
