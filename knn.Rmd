@@ -166,11 +166,9 @@ for (i in 1:numks)
   knn_stats[i,5] = colMeans(pcyes,na.rm = TRUE)
   knn_stats[i,6] = colMeans(pcno,na.rm = TRUE)
 }
-cat('rmp debug')
-gc()
 ```
 
-```{r plot_k_stats,eval=FALSE}
+```{r plot_k_stats,eval=TRUE}
 stats_frame <- data.frame(knn_stats)
 colnames(stats_frame) <- c("k","accuracy","sensitivity","specificity","Perc_Yes","Perc_No")
 for_plot <- reshape2::melt(stats_frame,id.var='k')
@@ -181,7 +179,7 @@ for_plot %>% ggplot(aes(x=k,y=value,col=variable)) +
   ggtitle('Performance of Classifier by K')
 ```
 
-```{r choose_k,eval=FALSE}
+```{r choose_k,eval=TRUE}
 combined_stats <- stats_frame %>% 
   mutate(sums = accuracy + sensitivity + specificity) 
 
