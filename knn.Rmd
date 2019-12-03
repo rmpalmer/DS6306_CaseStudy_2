@@ -131,8 +131,8 @@ True percentage of "no"  values is `r true_no_perc`
 ```{r knn_parms}
 set.seed(42)
 train_frac <- 0.7
-numks <- 100
-knn_trials <- 50
+numks <- 50
+knn_trials <- 100
 positive_value <- 'Yes'
 max_acc_k = 10
 chosen_k = 5
@@ -215,7 +215,8 @@ combined_stats <- stats_frame %>%
   mutate(sums = accuracy + sensitivity + specificity) 
 
 max_acc_k <- which.max(knn_stats[,2])
-chosen_k <-  5
+chosen_k  <- max_acc_k
+#chosen_k <-  5
 
 chosen_acc  <- round(100*combined_stats$accuracy[chosen_k])
 chosen_sens <- round(100*combined_stats$sensitivity[chosen_k])
@@ -245,7 +246,7 @@ rm(score)
 gc()
 ```
 
-## Repeat classificaiton on entire dataset
+## Repeat classifictiton on entire dataset
 
 ```{r knn_eval}
 # make a new classifier using all the data
@@ -284,11 +285,30 @@ use it for making predictions on the unlabeled data for submission.
 
 blind_raw <- read.csv('CaseStudy2CompSetNoAttrition.csv')
 blind_test <- my_transform(blind_raw)
-predicted_attrition <- as.factor(knn(for_knn[,cols_for_knn],
+
+if (FALSE) {
+  predicted_attrition <- as.factor(knn(for_knn[,cols_for_knn],
                            blind_test[,cols_for_knn],
                            for_knn$Attrition,k=chosen_k))
-levels(predicted_attrition) <- c("No","Yes")
+  str(predicted_attrition)
+  summary(predicted_attrition)
+} else {
+  # rmp try adjusting blind results
+  raw_class = as.factor(knn(for_knn[,cols_for_knn],
+                          blind_test[,cols_for_knn],
+                          for_knn$Attrition,prob=TRUE,k=chosen_k))
+  levels(raw_class) <- c("No","Yes")
+  
+  str(raw_class)
+  summary(raw_class)
+  
+  predicted_attrition = knn_adjust(raw_class, k = chosen_k, num_no = truth.no, num_yes = truth.yes)
+  str(predicted_attrition)
+  summary(predicted_attrition)
+}
+
 summary(predicted_attrition)
+
 for_submission <- cbind(blind_test$ID,as.character(predicted_attrition))
 colnames(for_submission) <- c("ID","Attrition")
 write.csv(for_submission,file="Case2PredictionsPalmerAttrition.csv",row.names=FALSE,quote=FALSE)
