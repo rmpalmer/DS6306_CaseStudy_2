@@ -44,6 +44,12 @@ for_knn <- employee_data %>%
          z_OverTime,
          z_MaritalStatus)
 
+yes_obs <- for_knn %>%
+  filter(Attrition == 'Yes')
+
+no_obs <- for_knn %>%
+  filter(Attrition == 'No')
+
 cols_for_knn <- c("z_DistanceFromHome",
                    "z_EnvironmentSatisfaction",
                    "z_NumCompaniesWorked",
@@ -125,8 +131,8 @@ True percentage of "no"  values is `r true_no_perc`
 ```{r knn_parms}
 set.seed(42)
 train_frac <- 0.7
-numks <- 50
-knn_trials <- 150
+numks <- 100
+knn_trials <- 50
 positive_value <- 'Yes'
 max_acc_k = 10
 chosen_k = 5
@@ -138,11 +144,11 @@ run KNN with different values of K to select appropriate neighborhood size.
 
 ```{r do_knn}
 # look for the best value of k
-#  do 100 trials, and for each trial
+#  do several trials, and for each trial
 #   split data into training and test
 #   make classifier and from the confusion matrix,
 #   save the accuracy, sensitivity, and specificity
-knn_stats = matrix(nrow=numks,ncol=7)
+knn_stats = matrix(nrow=numks,ncol=6)
 true_pcyes <- truth.yes/truth.nobs
 for (i in 1:numks)
 {
@@ -151,18 +157,26 @@ for (i in 1:numks)
   spec = matrix(nrow=knn_trials,ncol=1)
   pcyes = matrix(nrow=knn_trials,ncol=1)
   pcno  = matrix(nrow=knn_trials,ncol=1)
-  score = matrix(nrow=knn_trials,ncol=1)
   for (j in 1:knn_trials)
   {
-    trainIndices = sample(1:dim(for_knn)[1],round(train_frac * dim(for_knn)[1]))
-    trainData = for_knn[trainIndices,]
-    testData = for_knn[-trainIndices,]
+    # extract equal 'Yes' and 'No' subsets, put together into one set, which 
+    # will then be split into training and test parts
+    cnt <- min(truth.yes,truth.no)
+    trial_space <- rbind(sample_n(yes_obs,cnt,replace=FALSE),sample_n(no_obs,cnt,replace=FALSE))
+    
+    trainIndices = sample(1:dim(trial_space)[1],round(train_frac * dim(trial_space)[1]))
+    trainData = trial_space[trainIndices,]
+    testData = trial_space[-trainIndices,]
     raw_class = knn(trainData[,cols_for_knn],
                               testData[,cols_for_knn],
                               trainData$Attrition, prob = TRUE, k = i)
-    classifications = knn_adjust(raw_class, k = i, num_no = truth.no, num_yes = truth.yes)
+    
+    # with the equal sampling, there should be no need to normalize
+    # classifications = knn_adjust(raw_class, k = i, num_no = truth.no, num_yes = truth.yes)
+    classifications <- raw_class
     tmp <- data.frame(classifications)
     answers <- count(tmp,vars=classifications)
+    
     num_yes <- as.numeric(answers[2,2])
     num_no  <- as.numeric(answers[1,2])
     num_obs <- num_yes + num_no
@@ -173,7 +187,6 @@ for (i in 1:numks)
     spec[j] = CM$byClass[2]
     pcyes[j] = num_yes / num_obs
     pcno[j]  = num_no / num_obs
-    score[j] = CM$overall[1] + CM$byClass[1] + CM$byClass[2] # + abs(pcyes[j] - true_pcyes)
   }
   
   # make a matrix with accuracy, sensitivity, and specificity
@@ -183,13 +196,12 @@ for (i in 1:numks)
   knn_stats[i,4] = colMeans(spec,na.rm = TRUE)
   knn_stats[i,5] = colMeans(pcyes,na.rm = TRUE)
   knn_stats[i,6] = colMeans(pcno,na.rm = TRUE)
-  knn_stats[i,7] = colMeans(score,na.rm=TRUE)
 }
 ```
 
 ```{r plot_k_stats,eval=TRUE}
 stats_frame <- data.frame(knn_stats)
-colnames(stats_frame) <- c("k","accuracy","sensitivity","specificity","Perc_Yes","Perc_No","Score")
+colnames(stats_frame) <- c("k","accuracy","sensitivity","specificity","Perc_Yes","Perc_No")
 for_plot <- reshape2::melt(stats_frame,id.var='k')
 for_plot %>% ggplot(aes(x=k,y=value,col=variable)) + 
   geom_line() +
@@ -203,10 +215,7 @@ combined_stats <- stats_frame %>%
   mutate(sums = accuracy + sensitivity + specificity) 
 
 max_acc_k <- which.max(knn_stats[,2])
-max_score_k <- which.max(knn_stats[,7])
-
-chosen_k <-  max_score_k
-chosen_k <- 9
+chosen_k <-  5
 
 chosen_acc  <- round(100*combined_stats$accuracy[chosen_k])
 chosen_sens <- round(100*combined_stats$sensitivity[chosen_k])
@@ -217,7 +226,7 @@ chosen_spec <- round(100*combined_stats$specificity[chosen_k])
 
 max accuracy is at k = `r max_acc_k`.  
 Although k of `r max_acc_k` provides the highest accuracy, 
-we choose k of `r chosen_k`,  since this provides the highest combined sensitivity and specificity.
+we choose k of `r chosen_k`, because higher and higher k values result in worse specificity.  
 
 At that k, we have  
 accuracy of    `r chosen_acc`  
@@ -282,5 +291,5 @@ levels(predicted_attrition) <- c("No","Yes")
 summary(predicted_attrition)
 for_submission <- cbind(blind_test$ID,as.character(predicted_attrition))
 colnames(for_submission) <- c("ID","Attrition")
-write.csv(for_submission,file="Case2PredictionsPalmerAttrition.csv",row.names=FALSE)
+write.csv(for_submission,file="Case2PredictionsPalmerAttrition.csv",row.names=FALSE,quote=FALSE)
 ```

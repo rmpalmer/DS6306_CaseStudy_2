@@ -194,6 +194,6 @@ predicted_salary <- exp(predict(stepwise_model,newdata=blind_test))
 
 for_submission <- cbind(blind_test$ID,predicted_salary)
 colnames(for_submission) <- c("ID","Salary")
-write.csv(for_submission,file="Case2PredictionsPalmerSalary.csv",row.names=FALSE)
+write.csv(for_submission,file="Case2PredictionsPalmerSalary.csv",row.names=FALSE,quote=FALSE)
 
 ```

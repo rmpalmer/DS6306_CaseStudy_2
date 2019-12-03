@@ -18,28 +18,28 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r child = 'dataload.Rmd'}
 ```
 
-```{r child = 'eda_basic.Rmd', eval=FALSE}
+```{r child = 'eda_basic.Rmd', eval=TRUE}
 ```
 
-```{r child = 'eda_transform.Rmd', eval=FALSE}
+```{r child = 'eda_transform.Rmd', eval=TRUE}
 ```
 
 ```{r child = 'transform.Rmd',eval=TRUE}
 ```
 
-```{r child = 'eda_attrition.Rmd', eval=FALSE}
+```{r child = 'eda_attrition.Rmd', eval=TRUE}
 ```
 
-```{r child = 'selection_att.Rmd', eval=FALSE}
+```{r child = 'selection_att.Rmd', eval=TRUE}
 ```
 
-```{r child = 'naive_bayes.Rmd',eval=FALSE}
+```{r child = 'naive_bayes.Rmd',eval=TRUE}
 ```
 
 ```{r child = 'knn.Rmd',eval=TRUE}
 ```
 
-```{r child = 'salary.Rmd',eval=FALSE}
+```{r child = 'salary.Rmd',eval=TRUE}
 ```
 
 
