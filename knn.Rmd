@@ -58,10 +58,9 @@ cols_for_knn <- c("z_DistanceFromHome",
                    "z_WorkLifeBalance",
                    "z_YearsSinceLastPromotion",
                    "z_JobInvolvement",
-                   "z_JobSatisfaction")
-
-#                   "z_MaritalStatus",
-#                   "z_OverTime")
+                   "z_JobSatisfaction",
+                   "z_MaritalStatus",
+                   "z_OverTime")
 
 # adjust the knn results by known probabilities
 knn_adjust <- function(orig_factor, k, num_no=1, num_yes=1)
@@ -129,10 +128,10 @@ True percentage of "no"  values is `r true_no_perc`
 ## Set parameters for KNN
 
 ```{r knn_parms}
-set.seed(42)
+set.seed(1)
 train_frac <- 0.7
 numks <- 50
-knn_trials <- 100
+knn_trials <- 250
 positive_value <- 'Yes'
 max_acc_k = 10
 chosen_k = 5
@@ -216,7 +215,6 @@ combined_stats <- stats_frame %>%
 
 max_acc_k <- which.max(knn_stats[,2])
 chosen_k  <- max_acc_k
-#chosen_k <-  5
 
 chosen_acc  <- round(100*combined_stats$accuracy[chosen_k])
 chosen_sens <- round(100*combined_stats$sensitivity[chosen_k])
