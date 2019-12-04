@@ -18,12 +18,6 @@ train_raw <- read.csv('CaseStudy2-data.csv') %>%
   mutate(numeric_OverTime = as.integer(OverTime),
         numeric_MaritalStatus = as.integer(MaritalStatus))
 
-
-# these are constant:
-#  Over18, StandardHours
-# these are redundant
-#  DailyRate, MonthlyRate, HourlyRate
-
 # identifiying:
 
 # ID
