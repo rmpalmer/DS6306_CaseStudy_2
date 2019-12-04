@@ -70,6 +70,8 @@ subjective_numeric <- c("t_JobLevel",
 "t_StockOptionLevel",
 "t_YearsAtCompany")
                       
+minimal_numeric <- c("JobLevel","t_TotalWorkingYears")
+reprise_numeric <- c("JobLevel","t_YearsWithCurrManager","t_TotalWorkingYears")
 
 mi_f_stepwise   <- as.formula(paste("t_MonthlyIncome ~ ",
                              paste(stepwise_numeric,collapse="+")))
@@ -80,6 +82,11 @@ mi_f_creosote   <- as.formula(paste("t_MonthlyIncome ~ ",
 mi_f_subjective <- as.formula(paste("t_MonthlyIncome ~ ",
                              paste(subjective_numeric,collapse="+")))
                              
+mi_f_minimal <- as.formula(paste("t_MonthlyIncome ~ ",
+                             paste(minimal_numeric,collapse="+")))
+                             
+mi_f_reprise <- as.formula(paste("t_MonthlyIncome ~ ",
+                             paste(reprise_numeric,collapse="+")))
 
 train_control <- trainControl(method="LOOCV")
 ```
@@ -177,11 +184,90 @@ rm(subjective_qc)
 gc()
 ```
 
+```{r minimal}
+########################### minimal ###################################
+
+# minimal predictors
+minimal_loocv <- train(mi_f_minimal,
+                      data=employee_data,
+                      method="lm",trControl = train_control)
+print(minimal_loocv)
+minimal_r2 <- minimal_loocv$results$Rsquared
+minimal_model <- minimal_loocv$finalModel
+summary(minimal_model)
+minimal_qc <- make_qc(minimal_model)
+```
+
+```{r}
+ggplot(minimal_qc, aes(x=residuals)) + 
+  geom_histogram() + 
+  ggtitle(paste("Histogram of residuals from minimal Model"))
+```
+
+```{r}
+ggplot(minimal_qc, aes(x=MonthlyIncome,y=predicted,color=EducationField)) +
+  geom_point() + 
+  ggtitle(paste("predicted versus actual for minimal Model"))
+```
+
+```{r}
+ggplot(minimal_qc, aes(sample=residuals)) +
+  stat_qq() + 
+  ggtitle(paste("QQ of residuals for minimal Model"))
+```
+
+```{r}
+rm(minimal_loocv)
+#rm(minimal_model)
+rm(minimal_qc)
+gc()
+```
+
+```{r reprise}
+########################### reprise ###################################
+
+# reprise predictors
+reprise_loocv <- train(mi_f_reprise,
+                      data=employee_data,
+                      method="lm",trControl = train_control)
+print(reprise_loocv)
+reprise_r2 <- reprise_loocv$results$Rsquared
+reprise_model <- reprise_loocv$finalModel
+summary(reprise_model)
+reprise_qc <- make_qc(reprise_model)
+```
+
+```{r}
+ggplot(reprise_qc, aes(x=residuals)) + 
+  geom_histogram() + 
+  ggtitle(paste("Histogram of residuals from reprise Model"))
+```
+
+```{r}
+ggplot(reprise_qc, aes(x=MonthlyIncome,y=predicted,color=EducationField)) +
+  geom_point() + 
+  ggtitle(paste("predicted versus actual for reprise Model"))
+```
+
+```{r}
+ggplot(reprise_qc, aes(sample=residuals)) +
+  stat_qq() + 
+  ggtitle(paste("QQ of residuals for reprise Model"))
+```
+
+```{r}
+rm(reprise_loocv)
+#rm(reprise_model)
+rm(reprise_qc)
+gc()
+```
+
+
 ```{r predict_known}
-reprise_raw <- read.csv('CaseStudy2-data.csv')
-reprise_test <- my_transform(reprise_raw)
-subjective_sanity <- exp(predict(subjective_model, newdata = reprise_test))
-stepwise_sanity   <- exp(predict(stepwise_model, newdata = reprise_test))
+#reprise_raw <- read.csv('CaseStudy2-data.csv')
+#reprise_test <- my_transform(reprise_raw)
+#reprise_sanity    <- exp(predict(reprise_model, newdata = reprise_test))
+#stepwise_sanity   <- exp(predict(stepwise_model, newdata = reprise_test))
 ```
 
 
