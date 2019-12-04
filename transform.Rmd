@@ -20,7 +20,7 @@ library(tidyverse)
 - EmployeeCount
 - StandardHours
 
-### the meaning of these is unclear
+### the meaning of these is unclear, so we drop them
 
 - DailyRate
 - MonthlyRate
@@ -125,45 +125,6 @@ my_transform <- function(raw_df)
 train_raw <- read.csv('CaseStudy2-data.csv') 
 
 employee_data <- my_transform(train_raw)
-
-
-# 1) drop unused columns
-# 2) transform numeric columns to names "t_*"
-#    some of the columns are log(value+1) to avoid log of zero...
-
-
-# these are constant:
-#  Over18, StandardHours
-# these are redundant
-#  DailyRate, MonthlyRate, HourlyRate
-
-# identifiying:
-
-# ID
-# Attrition
-# EmployeeNumber
-
-# Factors:
-
-# BusinessTravel
-# Department
-# EducationField
-# Gender
-# JobRole
-# MaritalStatus
-## Over18
-# OverTime
-
-
-# Numeric:
-
-# Age
-# DailyRate
-# DistanceFromHome
-# Education
-# EmployeeCount
-# EnvironmentSatisfaction
-# HourlyRate
 
 ```
 

@@ -16,7 +16,9 @@ library(lattice)
 
 # EDA to consider data tranformations
 
-## Make histogram and QQ plot of each numeric variable with log and sqrt tranformations
+## Make histogram and QQ plot of each numeric variable
+
+Repeat with log and sqrt tranformations, with the goal of improving normality
 
 ### Note that when the minimum value of a variable is 0, add 1 to make enable log transform
 
@@ -27,16 +29,34 @@ myqc <- function(varname,zb=0)
   nbins <- 21
   one_col <- train_raw %>% dplyr::select(index)
   colnames(one_col)  <- c('x')
-  p1 <- one_col %>% ggplot(aes(x=x)) + geom_histogram(bins=nbins) + ggtitle(varname)
-  p2 <- one_col %>% ggplot(aes(sample=x)) + stat_qq() + ggtitle(varname)
+  p1 <- one_col %>% ggplot(aes(x=x)) +
+    geom_histogram(bins=nbins,fill="white",color="black") +
+    geom_vline(aes(xintercept=mean(x),color="blue")) + 
+    ggtitle(varname)
+  p2 <- one_col %>% ggplot(aes(sample=x)) +
+    stat_qq() +
+    stat_qq_line() + 
+    ggtitle(varname)
   p3 <- one_col %>% mutate(new_value = log(x+zb)) %>%
-    ggplot(aes(x=new_value)) + geom_histogram(bins=nbins) + ggtitle(paste('log',varname))
+    ggplot(aes(x=new_value)) +
+    geom_histogram(bins=nbins,fill="white",color="black") +
+    geom_vline(aes(xintercept=mean(x),color="blue")) + 
+    ggtitle(paste('log',varname))
   p4 <- one_col %>% mutate(new_value = log(x+zb)) %>%
-    ggplot(aes(sample=new_value)) + stat_qq() + ggtitle(paste('log',varname))
+    ggplot(aes(sample=new_value)) +
+    stat_qq() +
+    stat_qq_line() + 
+    ggtitle(paste('log',varname))
   p5 <- one_col %>% mutate(new_value = sqrt(x+zb)) %>%
-    ggplot(aes(x=new_value)) + geom_histogram(bins=nbins) + ggtitle(paste('sqrt',varname))
+    ggplot(aes(x=new_value)) +
+    geom_histogram(bins=nbins,fill="white",color="black") +
+    geom_vline(aes(xintercept=mean(x),color="blue")) + 
+    ggtitle(paste('sqrt',varname))
   p6 <- one_col %>% mutate(new_value = sqrt(x+zb)) %>%
-    ggplot(aes(sample=new_value)) + stat_qq() + ggtitle(paste('sqrt',varname))
+    ggplot(aes(sample=new_value)) +
+    stat_qq() +
+    stat_qq_line() + 
+    ggtitle(paste('sqrt',varname))
   grid.arrange(p1,p2,p3,p4,p5,p6,nrow=3)
 }
 
