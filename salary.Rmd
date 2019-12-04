@@ -264,10 +264,12 @@ gc()
 
 
 ```{r predict_known}
-#reprise_raw <- read.csv('CaseStudy2-data.csv')
-#reprise_test <- my_transform(reprise_raw)
-#reprise_sanity    <- exp(predict(reprise_model, newdata = reprise_test))
-#stepwise_sanity   <- exp(predict(stepwise_model, newdata = reprise_test))
+reprise_raw <- read.csv('CaseStudy2-data.csv')
+reprise_test <- my_transform(reprise_raw)
+subjective_sanity <- exp(predict(subjective_model, newdata = reprise_test))
+reprise_sanity    <- exp(predict(reprise_model, newdata = reprise_test))
+stepwise_sanity   <- exp(predict(stepwise_model, newdata = reprise_test))
+minimal_sanity    <- exp(predict(minimal_model, newdata = reprise_test))
 ```
 
 
