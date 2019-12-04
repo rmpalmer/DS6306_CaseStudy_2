@@ -38,7 +38,7 @@ We will discard them and stick with only Monthly Income.
 
 ## Summarize individual numeric variables.
 ```{r}
-summary(train_raw$distance from home)
+summary(train_raw$DistanceFromHome)
 summary(train_raw$Education)
 summary(train_raw$EnvironmentSatisfaction)
 summary(train_raw$JobInvolvement)

@@ -40,7 +40,7 @@ myqc <- function(varname,zb=0)
   p3 <- one_col %>% mutate(new_value = log(x+zb)) %>%
     ggplot(aes(x=new_value)) +
     geom_histogram(bins=nbins,fill="white",color="black") +
-    geom_vline(aes(xintercept=mean(x),color="blue")) + 
+    geom_vline(aes(xintercept=mean(log(x+zb)),color="blue")) + 
     ggtitle(paste('log',varname))
   p4 <- one_col %>% mutate(new_value = log(x+zb)) %>%
     ggplot(aes(sample=new_value)) +
@@ -50,7 +50,7 @@ myqc <- function(varname,zb=0)
   p5 <- one_col %>% mutate(new_value = sqrt(x+zb)) %>%
     ggplot(aes(x=new_value)) +
     geom_histogram(bins=nbins,fill="white",color="black") +
-    geom_vline(aes(xintercept=mean(x),color="blue")) + 
+    geom_vline(aes(xintercept=mean(sqrt(x+zb)),color="blue")) + 
     ggtitle(paste('sqrt',varname))
   p6 <- one_col %>% mutate(new_value = sqrt(x+zb)) %>%
     ggplot(aes(sample=new_value)) +
